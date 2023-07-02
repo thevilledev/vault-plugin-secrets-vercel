@@ -3,7 +3,6 @@ package plugin
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -17,7 +16,7 @@ var (
 )
 
 type backendConfig struct {
-	KeyToken string `json:"key_token"`
+	APIKey string `json:"api_key"`
 }
 
 func (b *backend) pathConfig() []*framework.Path {
@@ -28,36 +27,20 @@ func (b *backend) pathConfig() []*framework.Path {
 			Fields: map[string]*framework.FieldSchema{
 				pathConfigKeyToken: {
 					Type:        framework.TypeString,
-					Description: "Main API key for the Vercel account.",
+					Description: "API key for the Vercel account.",
 				},
 			},
 
 			Operations: map[logical.Operation]framework.OperationHandler{
-				logical.ReadOperation: &framework.PathOperation{
-					Callback: b.handleConfigRead,
-					Summary:  "Retrieve configuration from Vercel secrets plugin.",
-				},
 				logical.UpdateOperation: &framework.PathOperation{
-					Callback: b.handleConfigWrite,
-					Summary:  "Update configuration for an existing Vercel secrets plugin.",
+					Callback: b.pathConfigWrite,
 				},
 				logical.CreateOperation: &framework.PathOperation{
-					Callback: b.handleConfigWrite,
-					Summary:  "Create configuration for Vercel secrets plugin.",
+					Callback: b.pathConfigWrite,
 				},
 			},
-			ExistenceCheck: b.handleConfigExistenceCheck,
 		},
 	}
-}
-
-func (b *backend) handleConfigExistenceCheck(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
-	out, err := req.Storage.Get(ctx, req.Path)
-	if err != nil {
-		return false, fmt.Errorf("existence check failed: %s", err)
-	}
-
-	return out != nil, nil
 }
 
 func (b *backend) getConfig(ctx context.Context, storage logical.Storage) (*backendConfig, error) {
@@ -77,29 +60,14 @@ func (b *backend) getConfig(ctx context.Context, storage logical.Storage) (*back
 	return &config, nil
 }
 
-func (b *backend) handleConfigRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	config, err := b.getConfig(ctx, req.Storage)
-	if err != nil {
-		return nil, err
-	} else if config == nil {
-		return nil, nil
-	}
-
-	return &logical.Response{
-		Data: map[string]interface{}{
-			pathConfigKeyToken: config.KeyToken,
-		},
-	}, nil
-}
-
-func (b *backend) handleConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	config := &backendConfig{}
 
 	if v, ok := data.GetOk(pathConfigKeyToken); ok {
-		config.KeyToken = v.(string)
+		config.APIKey = v.(string)
 	}
 
-	if config.KeyToken == "" {
+	if config.APIKey == "" {
 		return nil, errMissingMainAPIToken
 	}
 

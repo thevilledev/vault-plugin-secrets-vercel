@@ -21,15 +21,19 @@ func New(apiKey string) *Service {
 	}
 }
 
-func (s *Service) CreateAuthToken(ctx context.Context, name string) (*Token, error) {
+func (s *Service) CreateAuthToken(ctx context.Context, name string) (string, string, error) {
 	r, err := s.apiClient.CreateAuthToken(ctx, &client.CreateAuthTokenRequest{
 		Name: name,
 	})
 	if err != nil {
-		return nil, err
+		return "", "", err
 	}
-	return &Token{
-		ID:    r.Token.ID,
-		Token: r.BearerToken,
-	}, nil
+	return r.Token.ID, r.BearerToken, nil
+}
+
+func (s *Service) DeleteAuthToken(ctx context.Context, id string) error {
+	_, err := s.apiClient.DeleteAuthToken(ctx, &client.DeleteAuthTokenRequest{
+		ID: id,
+	})
+	return err
 }

@@ -9,6 +9,9 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
+// #nosec G101
+const backendSecretType = "vercel_token"
+
 // backend wraps the backend framework and adds a map for storing key value pairs
 type backend struct {
 	*framework.Backend
@@ -41,6 +44,22 @@ func newBackend() *backend {
 			b.pathConfig(),
 			b.pathToken(),
 		),
+		Secrets: []*framework.Secret{
+			{
+				Type: backendSecretType,
+				Fields: map[string]*framework.FieldSchema{
+					pathTokenID: {
+						Type:        framework.TypeString,
+						Description: "Vercel API token ID.",
+					},
+					pathTokenBearerToken: {
+						Type:        framework.TypeString,
+						Description: "Vercel API token.",
+					},
+				},
+				Revoke: b.Revoke,
+			},
+		},
 	}
 
 	return b

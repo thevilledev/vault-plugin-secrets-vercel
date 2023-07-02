@@ -2,7 +2,6 @@ package plugin
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"time"
 
@@ -11,23 +10,30 @@ import (
 	"github.com/thevilledev/vault-plugin-secrets-vercel/pkg/service"
 )
 
+const (
+	keyPrefix = "vault-plugin-secrets-vercel"
+)
+
 var (
-	pathPatternToken        = "token"
-	errBackendNotConfigured = errors.New("backend not configured")
+	pathPatternToken     = "token"
+	pathTokenID          = "token_id"
+	pathTokenBearerToken = "bearer_token"
 )
 
 func (b *backend) pathToken() []*framework.Path {
 	return []*framework.Path{
 		{
 			Pattern: pathPatternToken,
-
 			Fields: map[string]*framework.FieldSchema{
-				"role": {
+				pathTokenID: {
 					Type:        framework.TypeString,
-					Description: "Name of the role to apply to the API key",
+					Description: "Token ID for the generated API key.",
+				},
+				pathTokenBearerToken: {
+					Type:        framework.TypeString,
+					Description: "Generated API key.",
 				},
 			},
-
 			Operations: map[logical.Operation]framework.OperationHandler{
 				logical.ReadOperation: &framework.PathOperation{
 					Callback: b.pathTokenWrite,
@@ -44,31 +50,36 @@ func (b *backend) pathToken() []*framework.Path {
 }
 
 func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
-	var cfg backendConfig
-	e, err := req.Storage.Get(ctx, pathPatternConfig)
+	cfg, err := b.getConfig(ctx, req.Storage)
 	if err != nil {
 		return nil, err
 	}
-	if err := e.DecodeJSON(&cfg); err != nil {
-		return nil, err
+	if cfg.APIKey == "" {
+		return nil, fmt.Errorf("backend is missing api key")
 	}
 
-	if cfg.KeyToken == "" {
-		return nil, errBackendNotConfigured
-	}
-
-	svc := service.New(cfg.KeyToken)
+	svc := service.New(cfg.APIKey)
 	ts := time.Now().UnixNano()
-	name := fmt.Sprintf("vault-%d", ts)
-	token, err := svc.CreateAuthToken(ctx, name)
+	name := fmt.Sprintf("%s-%d", keyPrefix, ts)
+
+	tokenID, bearerToken, err := svc.CreateAuthToken(ctx, name)
 	if err != nil {
 		return nil, err
 	}
 
 	return &logical.Response{
 		Data: map[string]interface{}{
-			"ID":          token.ID,
-			"bearerToken": token.Token,
+			pathTokenID:          tokenID,
+			pathTokenBearerToken: bearerToken,
+		},
+		Secret: &logical.Secret{
+			InternalData: map[string]interface{}{
+				"secret_type": backendSecretType,
+				pathTokenID:   tokenID,
+			},
+			LeaseOptions: logical.LeaseOptions{
+				TTL: time.Until(time.Now().Add(10 * time.Second)),
+			},
 		},
 	}, nil
 }
