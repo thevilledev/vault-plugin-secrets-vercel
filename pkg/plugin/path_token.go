@@ -11,10 +11,7 @@ import (
 )
 
 const (
-	keyPrefix = "vault-plugin-secrets-vercel"
-)
-
-var (
+	keyPrefix            = "vault-plugin-secrets-vercel"
 	pathPatternToken     = "token"
 	pathTokenID          = "token_id"
 	pathTokenBearerToken = "bearer_token"

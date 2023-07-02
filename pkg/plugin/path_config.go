@@ -8,11 +8,13 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
-var (
+const (
 	pathPatternConfig = "config"
 	pathConfigAPIKey  = "api_key"
+)
 
-	errMissingMainAPIToken = errors.New("missing main API token configuration")
+var (
+	errMissingAPIKey = errors.New("missing API key from configuration")
 )
 
 type backendConfig struct {
@@ -68,7 +70,7 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 	}
 
 	if config.APIKey == "" {
-		return nil, errMissingMainAPIToken
+		return nil, errMissingAPIKey
 	}
 
 	e, err := logical.StorageEntryJSON(pathPatternConfig, config)

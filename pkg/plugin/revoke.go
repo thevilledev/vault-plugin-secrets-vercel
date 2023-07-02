@@ -16,20 +16,21 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, d *framework
 	}
 
 	if cfg.APIKey == "" {
-		return nil, fmt.Errorf("backend is missing API key")
+		return nil, fmt.Errorf("backend is missing the API key")
 	}
 
 	svc := service.New(cfg.APIKey)
 
 	k, ok := req.Secret.InternalData[pathTokenID]
 	if !ok {
-		return nil, fmt.Errorf("API key is missing from the secret")
+		return nil, fmt.Errorf("token ID is missing from the secret")
 	}
 	ks := k.(string)
 
 	err = svc.DeleteAuthToken(ctx, ks)
 	if err != nil {
-		return nil, fmt.Errorf("failed to delete token: %s", err)
+		b.Logger().Error("token delete failed: %s", err)
+		return nil, fmt.Errorf("failed to delete token")
 	}
 
 	return &logical.Response{}, nil
