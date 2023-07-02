@@ -1,9 +1,10 @@
 # vault-plugin-secrets-vercel
 
 Vault Secrets Plugin for Vercel allows you to dynamically generate Vercel API tokens through Vault.
+Useful for CI/CD as you can generate short-lived deployment tokens and let them revoke once you are done.
 
 Currently supports personal Vercel accounts. Additional features, such as token-specific fine-grained permissions
-are not supported by the plugin. I do not have a Pro/Enterprise plan to develop this further, but contributions welcome.
+are not supported by the plugin. I do not have a Pro/Enterprise plan.
 
 ## Getting started
 
@@ -40,4 +41,4 @@ Vault will automatically revoke the API key after the lease duration.
 
 Please don't - yet!
 
-If you do, please refer to the deployment model for plugins [from the official HashiCorp Vault tutorials](https://developer.hashicorp.com/vault/tutorials/app-integration/plugin-backends#setup-vault). 
+If you do, please refer to the documentation on deployment model for plugins [from the official HashiCorp Vault tutorials](https://developer.hashicorp.com/vault/tutorials/app-integration/plugin-backends#setup-vault).
