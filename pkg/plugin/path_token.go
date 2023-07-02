@@ -78,6 +78,7 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request, data
 				pathTokenID:   tokenID,
 			},
 			LeaseOptions: logical.LeaseOptions{
+				// TODO: add user-configurable TTL
 				TTL: time.Until(time.Now().Add(10 * time.Second)),
 			},
 		},
