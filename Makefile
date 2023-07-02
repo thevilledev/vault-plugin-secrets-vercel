@@ -29,4 +29,7 @@ clean:
 fmt:
 	go fmt $$(go list ./...)
 
-.PHONY: build clean fmt start enable
+lint:
+	golangci-lint run
+
+.PHONY: build clean fmt start enable lint
