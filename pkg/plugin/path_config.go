@@ -80,8 +80,5 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		return nil, err
 	}
 
-	res := &logical.Response{}
-	res.AddWarning("The 'read' endpoint returns sensitive information. Please set an ACL.")
-
-	return res, nil
+	return &logical.Response{}, nil
 }
