@@ -33,6 +33,7 @@ func (c *Client) do(ctx context.Context, method, endpoint string, body []byte,
 	params map[string]string) (*http.Response, error) {
 	u := fmt.Sprintf("%s%s", c.baseURL, endpoint)
 	bearer := fmt.Sprintf("Bearer %s", c.token)
+
 	req, err := http.NewRequestWithContext(ctx, method, u, bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err
@@ -45,6 +46,7 @@ func (c *Client) do(ctx context.Context, method, endpoint string, body []byte,
 	for key, val := range params {
 		q.Set(key, val)
 	}
+
 	req.URL.RawQuery = q.Encode()
 
 	return c.httpClient.Do(req)

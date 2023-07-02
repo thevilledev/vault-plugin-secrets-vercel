@@ -15,6 +15,7 @@ const (
 	pathPatternToken     = "token"
 	pathTokenID          = "token_id"
 	pathTokenBearerToken = "bearer_token"
+	ttl                  = 10 * time.Second // TODO: add token specific TTL
 )
 
 func (b *backend) pathToken() []*framework.Path {
@@ -52,6 +53,7 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 	if err != nil {
 		return nil, err
 	}
+
 	if cfg.APIKey == "" {
 		return nil, fmt.Errorf("backend is missing api key")
 	}
@@ -77,7 +79,7 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 			},
 			LeaseOptions: logical.LeaseOptions{
 				// TODO: add user-configurable TTL
-				TTL: time.Until(time.Now().Add(10 * time.Second)),
+				TTL: time.Until(time.Now().Add(ttl)),
 			},
 		},
 	}, nil

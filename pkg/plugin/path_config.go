@@ -53,9 +53,11 @@ func (b *backend) getConfig(ctx context.Context, storage logical.Storage) (*back
 	if err != nil {
 		return nil, err
 	}
+
 	if e == nil {
 		return nil, nil
 	}
+
 	if err = e.DecodeJSON(&config); err != nil {
 		return nil, err
 	}

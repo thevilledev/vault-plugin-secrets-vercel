@@ -25,6 +25,7 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 	if !ok {
 		return nil, fmt.Errorf("token ID is missing from the secret")
 	}
+
 	ks, ok := k.(string)
 	if !ok {
 		b.Logger().Trace("type assertion failed: %+v", ks)

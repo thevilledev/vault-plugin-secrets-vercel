@@ -36,41 +36,50 @@ type DeleteAuthTokenResponse struct {
 
 func (c *Client) CreateAuthToken(ctx context.Context, req *CreateAuthTokenRequest) (*CreateAuthTokenResponse, error) {
 	resp := &CreateAuthTokenResponse{}
+
 	b, err := json.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
+
 	res, err := c.do(ctx, http.MethodPost, "/user/tokens", b, nil)
 	if err != nil {
 		return nil, err
 	}
+
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = json.Unmarshal(body, &resp); err != nil {
 		return resp, err
 	}
+
 	return resp, nil
 }
 
 func (c *Client) DeleteAuthToken(ctx context.Context, req *DeleteAuthTokenRequest) (*DeleteAuthTokenResponse, error) {
 	resp := &DeleteAuthTokenResponse{}
 	path := fmt.Sprintf("%s/%s", "/user/tokens", req.ID)
+
 	res, err := c.do(ctx, http.MethodDelete, path, nil, nil)
 	if err != nil {
 		return nil, err
 	}
+
 	defer res.Body.Close()
 
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
 	}
+
 	if err = json.Unmarshal(body, &resp); err != nil {
 		return resp, err
 	}
+
 	return resp, nil
 }

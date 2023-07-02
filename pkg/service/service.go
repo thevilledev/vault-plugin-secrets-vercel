@@ -28,6 +28,7 @@ func (s *Service) CreateAuthToken(ctx context.Context, name string) (string, str
 	if err != nil {
 		return "", "", err
 	}
+
 	return r.Token.ID, r.BearerToken, nil
 }
 
@@ -35,5 +36,6 @@ func (s *Service) DeleteAuthToken(ctx context.Context, id string) error {
 	_, err := s.apiClient.DeleteAuthToken(ctx, &client.DeleteAuthTokenRequest{
 		ID: id,
 	})
+
 	return err
 }
