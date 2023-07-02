@@ -3,8 +3,8 @@ package vercel
 import (
 	"context"
 	"errors"
+	"fmt"
 
-	"github.com/hashicorp/errwrap"
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 )
@@ -54,7 +54,7 @@ func (b *vercelBackend) pathConfig() []*framework.Path {
 func (b *vercelBackend) handleConfigExistenceCheck(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
 	out, err := req.Storage.Get(ctx, req.Path)
 	if err != nil {
-		return false, errwrap.Wrapf("existence check failed: {{err}}", err)
+		return false, fmt.Errorf("existence check failed: %s", err)
 	}
 
 	return out != nil, nil

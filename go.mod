@@ -3,7 +3,6 @@ module github.com/thevilledev/vault-plugin-secrets-vercel
 go 1.20
 
 require (
-	github.com/hashicorp/errwrap v1.0.0
 	github.com/hashicorp/go-hclog v1.5.0
 	github.com/hashicorp/vault/api v1.0.5-0.20210325191337-ac5500471f36
 	github.com/hashicorp/vault/sdk v0.1.14-0.20210325185647-d3758c9bd369
@@ -15,6 +14,7 @@ require (
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/golang/protobuf v1.4.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.1 // indirect
 	github.com/hashicorp/go-immutable-radix v1.1.0 // indirect
 	github.com/hashicorp/go-kms-wrapping/entropy v0.1.0 // indirect
