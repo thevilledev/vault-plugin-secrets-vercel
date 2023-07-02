@@ -9,7 +9,7 @@ import (
 	"github.com/thevilledev/vault-plugin-secrets-vercel/pkg/service"
 )
 
-func (b *backend) Revoke(ctx context.Context, req *logical.Request, d *framework.FieldData) (*logical.Response, error) {
+func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
 	cfg, err := b.getConfig(ctx, req.Storage)
 	if err != nil {
 		return nil, err

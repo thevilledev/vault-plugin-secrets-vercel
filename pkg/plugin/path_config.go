@@ -55,14 +55,15 @@ func (b *backend) getConfig(ctx context.Context, storage logical.Storage) (*back
 	if e == nil {
 		return nil, nil
 	}
-	if err := e.DecodeJSON(&config); err != nil {
+	if err = e.DecodeJSON(&config); err != nil {
 		return nil, err
 	}
 
 	return &config, nil
 }
 
-func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
+	data *framework.FieldData) (*logical.Response, error) {
 	config := &backendConfig{}
 
 	if v, ok := data.GetOk(pathConfigAPIKey); ok {
@@ -78,7 +79,7 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request, dat
 		return nil, err
 	}
 
-	if err := req.Storage.Put(ctx, e); err != nil {
+	if err = req.Storage.Put(ctx, e); err != nil {
 		return nil, err
 	}
 

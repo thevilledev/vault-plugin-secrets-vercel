@@ -11,8 +11,25 @@ linters:
     - gomodguard
     - gosimple
     - gosec
+    - gocritic
+    - lll
+    - whitespace
 
 run:
   timeout: 10m
   concurrency: 4
   skip-dirs-use-default: false
+
+linters-settings:
+  govet:
+    # Enable all analyzers. Default: false
+    enable-all: true
+    # Disable analyzers by name. Run `go tool vet help` to see all analyzers.
+    # Default: []
+    disable:
+      - fieldalignment # too strict
+    # Settings per analyzer.
+    settings:
+      shadow:
+        # Whether to be strict about shadowing; can be noisy. Default: false
+        strict: true

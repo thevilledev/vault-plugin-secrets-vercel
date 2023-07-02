@@ -32,5 +32,4 @@ func fatal(err error) {
 	logger := hclog.New(&hclog.LoggerOptions{})
 	logger.Error("plugin shutting down", "error", err)
 	os.Exit(1)
-
 }

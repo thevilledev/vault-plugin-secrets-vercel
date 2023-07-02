@@ -46,7 +46,8 @@ func (b *backend) pathToken() []*framework.Path {
 	}
 }
 
-func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
+	_ *framework.FieldData) (*logical.Response, error) {
 	cfg, err := b.getConfig(ctx, req.Storage)
 	if err != nil {
 		return nil, err
@@ -65,12 +66,12 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request, data
 	}
 
 	return &logical.Response{
-		Data: map[string]interface{}{
+		Data: map[string]any{
 			pathTokenID:          tokenID,
 			pathTokenBearerToken: bearerToken,
 		},
 		Secret: &logical.Secret{
-			InternalData: map[string]interface{}{
+			InternalData: map[string]any{
 				"secret_type": backendSecretType,
 				pathTokenID:   tokenID,
 			},
