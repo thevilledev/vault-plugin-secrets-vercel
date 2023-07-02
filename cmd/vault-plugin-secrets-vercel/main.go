@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/sdk/plugin"
-	vercel "github.com/thevilledev/vault-plugin-secrets-vercel"
+	vercelPlugin "github.com/thevilledev/vault-plugin-secrets-vercel/pkg/plugin"
 )
 
 func main() {
@@ -23,7 +23,7 @@ func main() {
 	tlsProviderFunc := api.VaultPluginTLSProvider(tlsConfig)
 
 	err := plugin.Serve(&plugin.ServeOpts{
-		BackendFactoryFunc: vercel.Factory,
+		BackendFactoryFunc: vercelPlugin.Factory,
 		TLSProviderFunc:    tlsProviderFunc,
 	})
 	if err != nil {

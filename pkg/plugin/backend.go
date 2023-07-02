@@ -1,4 +1,4 @@
-package vercel
+package plugin
 
 import (
 	"context"
