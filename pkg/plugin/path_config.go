@@ -14,7 +14,8 @@ const (
 )
 
 var (
-	errMissingAPIKey = errors.New("missing API key from configuration")
+	errMissingAPIKey       = errors.New("missing API key from configuration")
+	errTypeAssertionFailed = errors.New("type assertion failed")
 )
 
 type backendConfig struct {
@@ -67,7 +68,11 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 	config := &backendConfig{}
 
 	if v, ok := data.GetOk(pathConfigAPIKey); ok {
-		config.APIKey = v.(string)
+		config.APIKey, ok = v.(string)
+		if !ok {
+			b.Logger().Trace("type assertion failed: %+v", v)
+			return nil, errTypeAssertionFailed
+		}
 	}
 
 	if config.APIKey == "" {

@@ -25,7 +25,11 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 	if !ok {
 		return nil, fmt.Errorf("token ID is missing from the secret")
 	}
-	ks := k.(string)
+	ks, ok := k.(string)
+	if !ok {
+		b.Logger().Trace("type assertion failed: %+v", ks)
+		return nil, errTypeAssertionFailed
+	}
 
 	err = svc.DeleteAuthToken(ctx, ks)
 	if err != nil {
