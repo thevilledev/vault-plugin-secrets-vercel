@@ -9,8 +9,8 @@ import (
 )
 
 var (
-	pathPatternConfig  = "config"
-	pathConfigKeyToken = "key_token"
+	pathPatternConfig = "config"
+	pathConfigAPIKey  = "api_key"
 
 	errMissingMainAPIToken = errors.New("missing main API token configuration")
 )
@@ -25,7 +25,7 @@ func (b *backend) pathConfig() []*framework.Path {
 			Pattern: pathPatternConfig,
 
 			Fields: map[string]*framework.FieldSchema{
-				pathConfigKeyToken: {
+				pathConfigAPIKey: {
 					Type:        framework.TypeString,
 					Description: "API key for the Vercel account.",
 				},
@@ -63,7 +63,7 @@ func (b *backend) getConfig(ctx context.Context, storage logical.Storage) (*back
 func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	config := &backendConfig{}
 
-	if v, ok := data.GetOk(pathConfigKeyToken); ok {
+	if v, ok := data.GetOk(pathConfigAPIKey); ok {
 		config.APIKey = v.(string)
 	}
 
