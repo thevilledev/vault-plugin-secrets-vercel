@@ -31,7 +31,12 @@ func (b *vercelBackend) pathToken() []*framework.Path {
 			Operations: map[logical.Operation]framework.OperationHandler{
 				logical.ReadOperation: &framework.PathOperation{
 					Callback: b.handleTokenRead,
-					Summary:  "Retrieve the secret from the map.",
+				},
+				logical.CreateOperation: &framework.PathOperation{
+					Callback: b.handleTokenRead,
+				},
+				logical.UpdateOperation: &framework.PathOperation{
+					Callback: b.handleTokenRead,
 				},
 			},
 		},
