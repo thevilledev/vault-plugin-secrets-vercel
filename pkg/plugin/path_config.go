@@ -20,7 +20,7 @@ type backendConfig struct {
 	KeyToken string `json:"key_token"`
 }
 
-func (b *vercelBackend) pathConfig() []*framework.Path {
+func (b *backend) pathConfig() []*framework.Path {
 	return []*framework.Path{
 		{
 			Pattern: pathPatternConfig,
@@ -51,7 +51,7 @@ func (b *vercelBackend) pathConfig() []*framework.Path {
 	}
 }
 
-func (b *vercelBackend) handleConfigExistenceCheck(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
+func (b *backend) handleConfigExistenceCheck(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
 	out, err := req.Storage.Get(ctx, req.Path)
 	if err != nil {
 		return false, fmt.Errorf("existence check failed: %s", err)
@@ -60,7 +60,7 @@ func (b *vercelBackend) handleConfigExistenceCheck(ctx context.Context, req *log
 	return out != nil, nil
 }
 
-func (b *vercelBackend) getConfig(ctx context.Context, storage logical.Storage) (*backendConfig, error) {
+func (b *backend) getConfig(ctx context.Context, storage logical.Storage) (*backendConfig, error) {
 	var config backendConfig
 
 	e, err := storage.Get(ctx, pathPatternConfig)
@@ -77,7 +77,7 @@ func (b *vercelBackend) getConfig(ctx context.Context, storage logical.Storage) 
 	return &config, nil
 }
 
-func (b *vercelBackend) handleConfigRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (b *backend) handleConfigRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	config, err := b.getConfig(ctx, req.Storage)
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (b *vercelBackend) handleConfigRead(ctx context.Context, req *logical.Reque
 	}, nil
 }
 
-func (b *vercelBackend) handleConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (b *backend) handleConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	config := &backendConfig{}
 
 	if v, ok := data.GetOk(pathConfigKeyToken); ok {

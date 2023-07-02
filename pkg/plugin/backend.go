@@ -9,8 +9,8 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
-// vercelBackend wraps the backend framework and adds a map for storing key value pairs
-type vercelBackend struct {
+// backend wraps the backend framework and adds a map for storing key value pairs
+type backend struct {
 	*framework.Backend
 }
 
@@ -31,8 +31,8 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 	return b, nil
 }
 
-func newBackend() *vercelBackend {
-	b := &vercelBackend{}
+func newBackend() *backend {
+	b := &backend{}
 
 	b.Backend = &framework.Backend{
 		Help:        strings.TrimSpace(vercelHelp),

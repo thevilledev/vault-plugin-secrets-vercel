@@ -16,7 +16,7 @@ var (
 	errBackendNotConfigured = errors.New("backend not configured")
 )
 
-func (b *vercelBackend) pathToken() []*framework.Path {
+func (b *backend) pathToken() []*framework.Path {
 	return []*framework.Path{
 		{
 			Pattern: pathPatternToken,
@@ -43,7 +43,7 @@ func (b *vercelBackend) pathToken() []*framework.Path {
 	}
 }
 
-func (b *vercelBackend) pathTokenWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var cfg backendConfig
 	e, err := req.Storage.Get(ctx, pathPatternConfig)
 	if err != nil {
