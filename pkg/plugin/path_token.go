@@ -12,14 +12,14 @@ import (
 )
 
 var (
-	tokenPathPrefix         = "token/"
+	pathPatternToken        = "token"
 	errBackendNotConfigured = errors.New("backend not configured")
 )
 
 func (b *vercelBackend) pathToken() []*framework.Path {
 	return []*framework.Path{
 		{
-			Pattern: tokenPathPrefix + framework.GenericNameRegex("role"),
+			Pattern: pathPatternToken,
 
 			Fields: map[string]*framework.FieldSchema{
 				"role": {
@@ -45,7 +45,7 @@ func (b *vercelBackend) pathToken() []*framework.Path {
 
 func (b *vercelBackend) pathTokenWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var cfg backendConfig
-	e, err := req.Storage.Get(ctx, configPath)
+	e, err := req.Storage.Get(ctx, pathPatternConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -53,11 +53,11 @@ func (b *vercelBackend) pathTokenWrite(ctx context.Context, req *logical.Request
 		return nil, err
 	}
 
-	if cfg.MainAPIToken == "" {
+	if cfg.KeyToken == "" {
 		return nil, errBackendNotConfigured
 	}
 
-	svc := service.New(cfg.MainAPIToken)
+	svc := service.New(cfg.KeyToken)
 	ts := time.Now().UnixNano()
 	name := fmt.Sprintf("vault-%d", ts)
 	token, err := svc.CreateAuthToken(ctx, name)

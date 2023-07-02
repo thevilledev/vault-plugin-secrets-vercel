@@ -10,23 +10,23 @@ import (
 )
 
 var (
-	configPath         = "config"
-	configMainAPIToken = "main_api_token"
+	pathPatternConfig  = "config"
+	pathConfigKeyToken = "key_token"
 
 	errMissingMainAPIToken = errors.New("missing main API token configuration")
 )
 
 type backendConfig struct {
-	MainAPIToken string `json:"main_api_token"`
+	KeyToken string `json:"key_token"`
 }
 
 func (b *vercelBackend) pathConfig() []*framework.Path {
 	return []*framework.Path{
 		{
-			Pattern: configPath,
+			Pattern: pathPatternConfig,
 
 			Fields: map[string]*framework.FieldSchema{
-				configMainAPIToken: {
+				pathConfigKeyToken: {
 					Type:        framework.TypeString,
 					Description: "Main API key for the Vercel account.",
 				},
@@ -63,7 +63,7 @@ func (b *vercelBackend) handleConfigExistenceCheck(ctx context.Context, req *log
 func (b *vercelBackend) getConfig(ctx context.Context, storage logical.Storage) (*backendConfig, error) {
 	var config backendConfig
 
-	e, err := storage.Get(ctx, configPath)
+	e, err := storage.Get(ctx, pathPatternConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -87,7 +87,7 @@ func (b *vercelBackend) handleConfigRead(ctx context.Context, req *logical.Reque
 
 	return &logical.Response{
 		Data: map[string]interface{}{
-			configMainAPIToken: config.MainAPIToken,
+			pathConfigKeyToken: config.KeyToken,
 		},
 	}, nil
 }
@@ -95,15 +95,15 @@ func (b *vercelBackend) handleConfigRead(ctx context.Context, req *logical.Reque
 func (b *vercelBackend) handleConfigWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	config := &backendConfig{}
 
-	if v, ok := data.GetOk(configMainAPIToken); ok {
-		config.MainAPIToken = v.(string)
+	if v, ok := data.GetOk(pathConfigKeyToken); ok {
+		config.KeyToken = v.(string)
 	}
 
-	if config.MainAPIToken == "" {
+	if config.KeyToken == "" {
 		return nil, errMissingMainAPIToken
 	}
 
-	e, err := logical.StorageEntryJSON(configPath, config)
+	e, err := logical.StorageEntryJSON(pathPatternConfig, config)
 	if err != nil {
 		return nil, err
 	}
