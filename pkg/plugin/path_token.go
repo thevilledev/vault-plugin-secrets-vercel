@@ -30,20 +30,20 @@ func (b *vercelBackend) pathToken() []*framework.Path {
 
 			Operations: map[logical.Operation]framework.OperationHandler{
 				logical.ReadOperation: &framework.PathOperation{
-					Callback: b.handleTokenRead,
+					Callback: b.pathTokenWrite,
 				},
 				logical.CreateOperation: &framework.PathOperation{
-					Callback: b.handleTokenRead,
+					Callback: b.pathTokenWrite,
 				},
 				logical.UpdateOperation: &framework.PathOperation{
-					Callback: b.handleTokenRead,
+					Callback: b.pathTokenWrite,
 				},
 			},
 		},
 	}
 }
 
-func (b *vercelBackend) handleTokenRead(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
+func (b *vercelBackend) pathTokenWrite(ctx context.Context, req *logical.Request, data *framework.FieldData) (*logical.Response, error) {
 	var cfg backendConfig
 	e, err := req.Storage.Get(ctx, configPath)
 	if err != nil {
