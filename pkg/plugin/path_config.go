@@ -6,11 +6,13 @@ import (
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
+	"github.com/thevilledev/vault-plugin-secrets-vercel/pkg/client"
 )
 
 const (
 	pathPatternConfig = "config"
 	pathConfigAPIKey  = "api_key"
+	pathConfigBaseURL = "base_url"
 )
 
 var (
@@ -19,7 +21,8 @@ var (
 )
 
 type backendConfig struct {
-	APIKey string `json:"api_key"`
+	APIKey  string `json:"api_key"`
+	BaseURL string `json:"base_url"`
 }
 
 func (b *backend) pathConfig() []*framework.Path {
@@ -31,6 +34,11 @@ func (b *backend) pathConfig() []*framework.Path {
 				pathConfigAPIKey: {
 					Type:        framework.TypeString,
 					Description: "API key for the Vercel account.",
+					Required:    true,
+				},
+				pathConfigBaseURL: {
+					Type:        framework.TypeString,
+					Description: "Optional API base URL used by this backend.",
 				},
 			},
 
@@ -54,8 +62,8 @@ func (b *backend) getConfig(ctx context.Context, storage logical.Storage) (*back
 		return nil, err
 	}
 
-	if e == nil {
-		return nil, nil
+	if e == nil || len(e.Value) == 0 {
+		return &backendConfig{}, nil
 	}
 
 	if err = e.DecodeJSON(&config); err != nil {
@@ -77,8 +85,20 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 		}
 	}
 
+	if v, ok := data.GetOk(pathConfigBaseURL); ok {
+		config.BaseURL, ok = v.(string)
+		if !ok {
+			b.Logger().Trace("type assertion failed: %+v", v)
+			return nil, errTypeAssertionFailed
+		}
+	}
+
 	if config.APIKey == "" {
 		return nil, errMissingAPIKey
+	}
+
+	if config.BaseURL == "" {
+		config.BaseURL = client.BaseURL
 	}
 
 	e, err := logical.StorageEntryJSON(pathPatternConfig, config)

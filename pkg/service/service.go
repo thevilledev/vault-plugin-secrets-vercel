@@ -21,6 +21,12 @@ func New(apiKey string) *Service {
 	}
 }
 
+func NewWithBaseURL(apiKey string, baseURL string) *Service {
+	return &Service{
+		apiClient: client.NewWithBaseURL(apiKey, baseURL),
+	}
+}
+
 func (s *Service) CreateAuthToken(ctx context.Context, name string) (string, string, error) {
 	r, err := s.apiClient.CreateAuthToken(ctx, &client.CreateAuthTokenRequest{
 		Name: name,
@@ -32,10 +38,10 @@ func (s *Service) CreateAuthToken(ctx context.Context, name string) (string, str
 	return r.Token.ID, r.BearerToken, nil
 }
 
-func (s *Service) DeleteAuthToken(ctx context.Context, id string) error {
-	_, err := s.apiClient.DeleteAuthToken(ctx, &client.DeleteAuthTokenRequest{
+func (s *Service) DeleteAuthToken(ctx context.Context, id string) (string, error) {
+	r, err := s.apiClient.DeleteAuthToken(ctx, &client.DeleteAuthTokenRequest{
 		ID: id,
 	})
 
-	return err
+	return r.ID, err
 }

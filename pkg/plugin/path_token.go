@@ -55,10 +55,10 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 	}
 
 	if cfg.APIKey == "" {
-		return nil, fmt.Errorf("backend is missing api key")
+		return nil, errMissingAPIKey
 	}
 
-	svc := service.New(cfg.APIKey)
+	svc := service.NewWithBaseURL(cfg.APIKey, cfg.BaseURL)
 	ts := time.Now().UnixNano()
 	name := fmt.Sprintf("%s-%d", keyPrefix, ts)
 
