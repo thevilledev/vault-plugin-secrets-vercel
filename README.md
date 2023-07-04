@@ -28,7 +28,7 @@ Generate a new Vault plugin managed token:
 $ vault read vercel-secrets/token
 Key                Value
 ---                -----
-lease_id           vercel-secrets/token/GtbmIK80YfqX3hOwn1A23Lro
+lease_id           vercel-secrets/token/<lease-id>
 lease_duration     10s
 lease_renewable    false
 bearer_token       xyzabbacdc
