@@ -32,7 +32,7 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 		return nil, errTypeAssertionFailed
 	}
 
-	err = svc.DeleteAuthToken(ctx, ks)
+	_, err = svc.DeleteAuthToken(ctx, ks)
 	if err != nil {
 		b.Logger().Error("token delete failed: %s", err)
 		return nil, fmt.Errorf("failed to delete token")

@@ -32,4 +32,10 @@ fmt:
 lint:
 	golangci-lint run
 
-.PHONY: build clean fmt start enable lint
+test:
+	go test -race -parallel=4 ./...
+
+test-acc:
+	ACC_TEST=yes go test -race -parallel=4 ./...
+
+.PHONY: build clean fmt start enable lint test test-acc

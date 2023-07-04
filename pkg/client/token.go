@@ -31,7 +31,7 @@ type DeleteAuthTokenRequest struct {
 }
 
 type DeleteAuthTokenResponse struct {
-	ID string `json:"id"`
+	ID string `json:"tokenId"`
 }
 
 func (c *Client) CreateAuthToken(ctx context.Context, req *CreateAuthTokenRequest) (*CreateAuthTokenResponse, error) {
@@ -52,6 +52,14 @@ func (c *Client) CreateAuthToken(ctx context.Context, req *CreateAuthTokenReques
 	body, err := io.ReadAll(res.Body)
 	if err != nil {
 		return nil, err
+	}
+
+	validStatusAbove := 200
+	invalidStatusBelow := 300
+
+	ok := res.StatusCode >= validStatusAbove && res.StatusCode < invalidStatusBelow
+	if !ok {
+		return nil, fmt.Errorf("http error %d with response body '%+v'", res.StatusCode, string(body))
 	}
 
 	if err = json.Unmarshal(body, &resp); err != nil {
