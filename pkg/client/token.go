@@ -54,7 +54,10 @@ func (c *Client) CreateAuthToken(ctx context.Context, req *CreateAuthTokenReques
 		return nil, err
 	}
 
-	ok := res.StatusCode >= 200 && res.StatusCode < 300
+	validStatusAbove := 200
+	invalidStatusBelow := 300
+
+	ok := res.StatusCode >= validStatusAbove && res.StatusCode < invalidStatusBelow
 	if !ok {
 		return nil, fmt.Errorf("http error %d with response body '%+v'", res.StatusCode, string(body))
 	}
