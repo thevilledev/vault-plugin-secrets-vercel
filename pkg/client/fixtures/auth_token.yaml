@@ -1,0 +1,125 @@
+---
+version: 2
+interactions:
+    - id: 0
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 73
+        transfer_encoding: []
+        trailer: {}
+        host: api.vercel.com
+        remote_addr: ""
+        request_uri: ""
+        body: '{"name":"vault-plugin-secrets-vercel-fixtures-token-1688557985495261000"}'
+        form: {}
+        headers:
+            Content-Type:
+                - application/json
+        url: https://api.vercel.com/v3/user/tokens
+        method: POST
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 351
+        uncompressed: false
+        body: '{"token":{"id":"e69a2ddb9d93b314f67bd8caf205380d6a9d1be66548cc3e841687c502be083d","name":"vault-plugin-secrets-vercel-fixtures-token-1688557985495261000","type":"token","origin":"manual"},"bearerToken":"[REDACTED]"}'
+        headers:
+            Access-Control-Allow-Headers:
+                - Authorization, Accept, Content-Type
+            Access-Control-Allow-Methods:
+                - OPTIONS, GET, POST, PUT, PATCH, DELETE
+            Access-Control-Allow-Origin:
+                - '*'
+            Cache-Control:
+                - public, max-age=0, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "351"
+            Content-Type:
+                - application/json; charset=utf-8
+            Date:
+                - Wed, 05 Jul 2023 11:53:06 GMT
+            Server:
+                - Vercel
+            Strict-Transport-Security:
+                - max-age=63072000; includeSubDomains; preload
+            X-Ratelimit-Limit:
+                - "32"
+            X-Ratelimit-Remaining:
+                - "26"
+            X-Ratelimit-Reset:
+                - "1688559854"
+            X-Vercel-Cache:
+                - MISS
+            X-Vercel-Id:
+                - sfo1::h4mlx-1688557986279-f70b30120caf
+        status: 200 OK
+        code: 200
+        duration: 902.193791ms
+    - id: 1
+      request:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        content_length: 0
+        transfer_encoding: []
+        trailer: {}
+        host: api.vercel.com
+        remote_addr: ""
+        request_uri: ""
+        body: ""
+        form: {}
+        headers:
+            Content-Type:
+                - application/json
+        url: https://api.vercel.com/v3/user/tokens/e69a2ddb9d93b314f67bd8caf205380d6a9d1be66548cc3e841687c502be083d
+        method: DELETE
+      response:
+        proto: HTTP/1.1
+        proto_major: 1
+        proto_minor: 1
+        transfer_encoding: []
+        trailer: {}
+        content_length: 78
+        uncompressed: false
+        body: '{"tokenId":"e69a2ddb9d93b314f67bd8caf205380d6a9d1be66548cc3e841687c502be083d"}'
+        headers:
+            Access-Control-Allow-Headers:
+                - Authorization, Accept, Content-Type
+            Access-Control-Allow-Methods:
+                - OPTIONS, GET, POST, PUT, PATCH, DELETE
+            Access-Control-Allow-Origin:
+                - '*'
+            Cache-Control:
+                - public, max-age=0, must-revalidate
+            Connection:
+                - keep-alive
+            Content-Length:
+                - "78"
+            Content-Type:
+                - application/json; charset=utf-8
+            Date:
+                - Wed, 05 Jul 2023 11:53:07 GMT
+            Server:
+                - Vercel
+            Strict-Transport-Security:
+                - max-age=63072000; includeSubDomains; preload
+            X-Ratelimit-Limit:
+                - "50"
+            X-Ratelimit-Remaining:
+                - "45"
+            X-Ratelimit-Reset:
+                - "1688558217"
+            X-Vercel-Cache:
+                - MISS
+            X-Vercel-Id:
+                - sfo1::h4mlx-1688557987539-e432e73a1484
+        status: 200 OK
+        code: 200
+        duration: 376.691125ms
