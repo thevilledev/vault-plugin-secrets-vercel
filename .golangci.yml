@@ -24,6 +24,11 @@ linters:
     - exhaustive
     - gocyclo
     - gomnd
+    - errorlint
+    - nlreturn
+    - forcetypeassert
+    - godox
+    - godot
 
 linters-settings:
   govet:

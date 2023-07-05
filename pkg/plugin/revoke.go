@@ -29,13 +29,15 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 	ks, ok := k.(string)
 	if !ok {
 		b.Logger().Trace("type assertion failed: %+v", ks)
+
 		return nil, errTypeAssertionFailed
 	}
 
 	_, err = svc.DeleteAuthToken(ctx, ks)
 	if err != nil {
 		b.Logger().Error("token delete failed: %s", err)
-		return nil, fmt.Errorf("failed to delete token: %s", err)
+
+		return nil, fmt.Errorf("failed to delete token: %w", err)
 	}
 
 	return &logical.Response{}, nil

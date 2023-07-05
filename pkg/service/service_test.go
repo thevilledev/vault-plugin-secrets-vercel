@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+//nolint:paralleltest
 func TestIntegration_Token(t *testing.T) {
 	if os.Getenv("ACC_TEST") == "" {
 		t.Skip("test skipped as ACC_TEST environment variable is not set")

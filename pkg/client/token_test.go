@@ -11,7 +11,11 @@ import (
 )
 
 func TestCreateDeleteToken(t *testing.T) {
+	t.Parallel()
+
 	recordHelper(t, "auth_token", func(ctx context.Context, t *testing.T, rec *recorder.Recorder, c *Client) {
+		t.Helper()
+
 		require.NotNil(t, c.httpClient)
 		pfx := "vault-plugin-secrets-vercel-fixtures-token"
 		ts := time.Now().UnixNano()

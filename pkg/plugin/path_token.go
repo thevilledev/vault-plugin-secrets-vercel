@@ -68,6 +68,7 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 		v, ta := vr.(int)
 		if !ta {
 			b.Logger().Trace("type assertion failed: %+v", v)
+
 			return nil, errTypeAssertionFailed
 		}
 
