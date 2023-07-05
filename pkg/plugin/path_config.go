@@ -3,6 +3,7 @@ package plugin
 import (
 	"context"
 	"errors"
+	"time"
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -13,6 +14,8 @@ const (
 	pathPatternConfig = "config"
 	pathConfigAPIKey  = "api_key"
 	pathConfigBaseURL = "base_url"
+	pathConfigMaxTTL  = "max_ttl"
+	defaultMaxTTL     = 600
 )
 
 var (
@@ -21,8 +24,9 @@ var (
 )
 
 type backendConfig struct {
-	APIKey  string `json:"api_key"`
-	BaseURL string `json:"base_url"`
+	APIKey  string        `json:"api_key"`
+	BaseURL string        `json:"base_url"`
+	MaxTTL  time.Duration `json:"max_ttl"`
 }
 
 func (b *backend) pathConfig() []*framework.Path {
@@ -39,6 +43,10 @@ func (b *backend) pathConfig() []*framework.Path {
 				pathConfigBaseURL: {
 					Type:        framework.TypeString,
 					Description: "Optional API base URL used by this backend.",
+				},
+				pathConfigMaxTTL: {
+					Type:    framework.TypeDurationSecond,
+					Default: defaultMaxTTL,
 				},
 			},
 
@@ -93,12 +101,28 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 		}
 	}
 
+	if vr, ok := data.GetOk(pathConfigMaxTTL); ok {
+		v, ta := vr.(int)
+		if !ta {
+			b.Logger().Trace("type assertion failed: %+v", v)
+			return nil, errTypeAssertionFailed
+		}
+
+		ttl := time.Duration(v) * time.Second
+
+		config.MaxTTL = time.Duration(ttl.Seconds())
+	}
+
 	if config.APIKey == "" {
 		return nil, errMissingAPIKey
 	}
 
 	if config.BaseURL == "" {
 		config.BaseURL = client.DefaultBaseURL
+	}
+
+	if config.MaxTTL == 0 {
+		config.MaxTTL = defaultMaxTTL
 	}
 
 	e, err := logical.StorageEntryJSON(pathPatternConfig, config)
@@ -109,6 +133,8 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 	if err = req.Storage.Put(ctx, e); err != nil {
 		return nil, err
 	}
+
+	b.Logger().Info("config initialised")
 
 	return &logical.Response{}, nil
 }

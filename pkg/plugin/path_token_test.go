@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
@@ -73,6 +74,7 @@ func TestToken_Create(t *testing.T) {
 		require.NotNil(t, r)
 		require.Equal(t, r.Data["token_id"], "foo")
 		require.Equal(t, r.Data["bearer_token"], "zyzz")
+		require.Equal(t, r.Secret.LeaseOptions.TTL, defaultMaxTTL*time.Second)
 		require.Equal(t, r.Secret.InternalData["token_id"], "foo")
 	})
 
@@ -111,5 +113,50 @@ func TestToken_Create(t *testing.T) {
 		})
 		require.Error(t, err)
 		require.Nil(t, r)
+	})
+
+	t.Run("CreateTokenWithConflictingTTLs", func(t *testing.T) {
+		t.Parallel()
+
+		b, storage := newTestBackend(t)
+
+		ts := httptest.NewServer(http.HandlerFunc(
+			func(w http.ResponseWriter, _ *http.Request) {
+				t.Helper()
+
+				body, _ := json.Marshal(&client.CreateAuthTokenResponse{
+					Token: client.Token{
+						ID:   "foo",
+						Name: "bar",
+					},
+					BearerToken: "zyzz",
+				})
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(body)
+			}),
+		)
+		defer ts.Close()
+
+		_, err := b.HandleRequest(context.Background(), &logical.Request{
+			Storage:   storage,
+			Operation: logical.CreateOperation,
+			Path:      pathPatternConfig,
+			Data: map[string]interface{}{
+				"api_key":  "foo",
+				"base_url": ts.URL,
+				"max_ttl":  10,
+			},
+		})
+		require.NoError(t, err)
+
+		_, err = b.HandleRequest(context.Background(), &logical.Request{
+			Storage:   storage,
+			Operation: logical.CreateOperation,
+			Path:      pathPatternToken,
+			Data: map[string]any{
+				"ttl": 11,
+			},
+		})
+		require.Error(t, err)
 	})
 }

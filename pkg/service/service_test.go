@@ -17,7 +17,8 @@ func TestIntegration_Token(t *testing.T) {
 	a := New(token)
 	ctx := context.Background()
 
-	tokenID, bearerToken, err := a.CreateAuthToken(ctx, "foobar")
+	ttl := int64(10)
+	tokenID, bearerToken, err := a.CreateAuthToken(ctx, "foobar", ttl)
 	require.NoError(t, err)
 	require.NotEmpty(t, tokenID)
 	require.NotEmpty(t, bearerToken)

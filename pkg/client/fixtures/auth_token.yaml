@@ -12,7 +12,7 @@ interactions:
         host: api.vercel.com
         remote_addr: ""
         request_uri: ""
-        body: '{"name":"vault-plugin-secrets-vercel-fixtures-token-1688557985495261000"}'
+        body: '{"name":"vault-plugin-secrets-vercel-fixtures-token-1688573641201647000"}'
         form: {}
         headers:
             Content-Type:
@@ -27,7 +27,7 @@ interactions:
         trailer: {}
         content_length: 351
         uncompressed: false
-        body: '{"token":{"id":"e69a2ddb9d93b314f67bd8caf205380d6a9d1be66548cc3e841687c502be083d","name":"vault-plugin-secrets-vercel-fixtures-token-1688557985495261000","type":"token","origin":"manual"},"bearerToken":"[REDACTED]"}'
+        body: '{"bearerToken":"REDACTED","token":{"activeAt":1688573641976,"createdAt":1688573641976,"id":"d92bf44b70e0a6ff96ac73764f7b973072e181f1365377a63f155ab75bbbeec2","name":"vault-plugin-secrets-vercel-fixtures-token-1688573641201647000","origin":"manual","scopes":[{"createdAt":1688573641976,"origin":"manual","type":"user"}],"type":"token"}}'
         headers:
             Access-Control-Allow-Headers:
                 - Authorization, Accept, Content-Type
@@ -44,7 +44,7 @@ interactions:
             Content-Type:
                 - application/json; charset=utf-8
             Date:
-                - Wed, 05 Jul 2023 11:53:06 GMT
+                - Wed, 05 Jul 2023 16:14:01 GMT
             Server:
                 - Vercel
             Strict-Transport-Security:
@@ -52,16 +52,16 @@ interactions:
             X-Ratelimit-Limit:
                 - "32"
             X-Ratelimit-Remaining:
-                - "26"
+                - "19"
             X-Ratelimit-Reset:
-                - "1688559854"
+                - "1688574204"
             X-Vercel-Cache:
                 - MISS
             X-Vercel-Id:
-                - sfo1::h4mlx-1688557986279-f70b30120caf
+                - sfo1::8ddlz-1688573641955-31483ee57ec3
         status: 200 OK
         code: 200
-        duration: 902.193791ms
+        duration: 836.402917ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -78,7 +78,7 @@ interactions:
         headers:
             Content-Type:
                 - application/json
-        url: https://api.vercel.com/v3/user/tokens/e69a2ddb9d93b314f67bd8caf205380d6a9d1be66548cc3e841687c502be083d
+        url: https://api.vercel.com/v3/user/tokens/d92bf44b70e0a6ff96ac73764f7b973072e181f1365377a63f155ab75bbbeec2
         method: DELETE
       response:
         proto: HTTP/1.1
@@ -88,7 +88,7 @@ interactions:
         trailer: {}
         content_length: 78
         uncompressed: false
-        body: '{"tokenId":"e69a2ddb9d93b314f67bd8caf205380d6a9d1be66548cc3e841687c502be083d"}'
+        body: '{"tokenId":"d92bf44b70e0a6ff96ac73764f7b973072e181f1365377a63f155ab75bbbeec2"}'
         headers:
             Access-Control-Allow-Headers:
                 - Authorization, Accept, Content-Type
@@ -105,7 +105,7 @@ interactions:
             Content-Type:
                 - application/json; charset=utf-8
             Date:
-                - Wed, 05 Jul 2023 11:53:07 GMT
+                - Wed, 05 Jul 2023 16:14:03 GMT
             Server:
                 - Vercel
             Strict-Transport-Security:
@@ -113,13 +113,13 @@ interactions:
             X-Ratelimit-Limit:
                 - "50"
             X-Ratelimit-Remaining:
-                - "45"
+                - "46"
             X-Ratelimit-Reset:
-                - "1688558217"
+                - "1688573802"
             X-Vercel-Cache:
                 - MISS
             X-Vercel-Id:
-                - sfo1::h4mlx-1688557987539-e432e73a1484
+                - sfo1::8ddlz-1688573643105-597f8d4d7eaf
         status: 200 OK
         code: 200
-        duration: 376.691125ms
+        duration: 280.953167ms

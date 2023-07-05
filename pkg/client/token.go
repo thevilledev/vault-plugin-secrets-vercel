@@ -10,7 +10,7 @@ import (
 
 type CreateAuthTokenRequest struct {
 	Name      string `json:"name"`
-	ExpiresAt int    `json:"expiresAt,omitempty"`
+	ExpiresAt int64  `json:"expiresAt,omitempty"`
 }
 
 type CreateAuthTokenResponse struct {
