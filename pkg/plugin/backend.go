@@ -17,14 +17,12 @@ Vercel Secrets backend is a secrets backend for dynamically managing Vercel toke
 `
 )
 
-// backend wraps the backend framework and adds a map for storing key value pairs
 type backend struct {
 	*framework.Backend
 }
 
 var _ logical.Factory = Factory
 
-// Factory configures and returns the backend
 func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend, error) {
 	b := newBackend()
 

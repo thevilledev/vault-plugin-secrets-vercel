@@ -23,7 +23,6 @@ type Token struct {
 	Name   string `json:"name"`
 	Type   string `json:"type"`
 	Origin string `json:"origin"`
-	// TODO scopes
 }
 
 type DeleteAuthTokenRequest struct {

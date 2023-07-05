@@ -51,11 +51,14 @@ func newTestBackend(t *testing.T) (*backend, logical.Storage) {
 	config := logical.TestBackendConfig()
 	config.StorageView = new(logical.InmemStorage)
 	config.Logger = hclog.NewNullLogger()
-	b, err := Factory(context.Background(), config)
+	br, err := Factory(context.Background(), config)
 	require.NoError(t, err)
-	require.NotNil(t, b)
+	require.NotNil(t, br)
 
-	return b.(*backend), config.StorageView
+	b, ok := br.(*backend)
+	require.Equal(t, ok, true)
+
+	return b, config.StorageView
 }
 
 func TestBackend_Config(t *testing.T) {

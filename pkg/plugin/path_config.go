@@ -89,6 +89,7 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 		config.APIKey, ok = v.(string)
 		if !ok {
 			b.Logger().Trace("type assertion failed: %+v", v)
+
 			return nil, errTypeAssertionFailed
 		}
 	}
@@ -97,6 +98,7 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 		config.BaseURL, ok = v.(string)
 		if !ok {
 			b.Logger().Trace("type assertion failed: %+v", v)
+
 			return nil, errTypeAssertionFailed
 		}
 	}
@@ -105,6 +107,7 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 		v, ta := vr.(int)
 		if !ta {
 			b.Logger().Trace("type assertion failed: %+v", v)
+
 			return nil, errTypeAssertionFailed
 		}
 
