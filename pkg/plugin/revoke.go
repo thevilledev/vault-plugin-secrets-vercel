@@ -19,7 +19,7 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 		return nil, fmt.Errorf("backend is missing the API key")
 	}
 
-	svc := service.New(cfg.APIKey)
+	svc := service.NewWithBaseURL(cfg.APIKey, cfg.BaseURL)
 
 	k, ok := req.Secret.InternalData[pathTokenID]
 	if !ok {
@@ -35,7 +35,7 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 	_, err = svc.DeleteAuthToken(ctx, ks)
 	if err != nil {
 		b.Logger().Error("token delete failed: %s", err)
-		return nil, fmt.Errorf("failed to delete token")
+		return nil, fmt.Errorf("failed to delete token: %s", err)
 	}
 
 	return &logical.Response{}, nil

@@ -43,5 +43,9 @@ func (s *Service) DeleteAuthToken(ctx context.Context, id string) (string, error
 		ID: id,
 	})
 
+	if err != nil {
+		return "", err
+	}
+
 	return r.ID, err
 }
