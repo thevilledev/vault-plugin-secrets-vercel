@@ -23,20 +23,22 @@ func recordHelper(t *testing.T, fixture string, f func(context.Context, *testing
 		delete(i.Request.Headers, "Authorization")
 
 		if strings.Contains(i.Request.URL, "/user/tokens") && i.Request.Method == http.MethodPost {
-			c := &CreateAuthTokenResponse{}
-			if e := json.Unmarshal([]byte(i.Response.Body), c); e != nil {
+			var c map[string]any
+			if e := json.Unmarshal([]byte(i.Response.Body), &c); e != nil {
 				return e
 			}
 
-			c.BearerToken = "[REDACTED]"
+			_, ok := c["bearerToken"]
+			if ok {
+				c["bearerToken"] = "REDACTED"
+			}
 
-			newBody, e := json.Marshal(c)
-
+			res, e := json.Marshal(c)
 			if e != nil {
 				return e
 			}
 
-			i.Response.Body = string(newBody)
+			i.Response.Body = string(res)
 		}
 
 		return nil

@@ -15,7 +15,7 @@ const (
 	pathPatternToken     = "token"
 	pathTokenID          = "token_id"
 	pathTokenBearerToken = "bearer_token"
-	ttl                  = 10 * time.Second // TODO: add token specific TTL
+	pathTokenTTL         = "ttl"
 )
 
 func (b *backend) pathToken() []*framework.Path {
@@ -30,6 +30,10 @@ func (b *backend) pathToken() []*framework.Path {
 				pathTokenBearerToken: {
 					Type:        framework.TypeString,
 					Description: "Generated API key.",
+				},
+				pathTokenTTL: {
+					Type:        framework.TypeDurationSecond,
+					Description: "TTL for the generated API key. Less than or equal to the maximum TTL set in configuration.",
 				},
 			},
 			Operations: map[logical.Operation]framework.OperationHandler{
@@ -48,7 +52,7 @@ func (b *backend) pathToken() []*framework.Path {
 }
 
 func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
-	_ *framework.FieldData) (*logical.Response, error) {
+	data *framework.FieldData) (*logical.Response, error) {
 	cfg, err := b.getConfig(ctx, req.Storage)
 	if err != nil {
 		return nil, err
@@ -58,11 +62,33 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 		return nil, errMissingAPIKey
 	}
 
+	ttl := int64(0)
+
+	if vr, ok := data.GetOk(pathTokenTTL); ok {
+		v, ta := vr.(int)
+		if !ta {
+			b.Logger().Trace("type assertion failed: %+v", v)
+			return nil, errTypeAssertionFailed
+		}
+
+		ttl = int64(v)
+	}
+
+	if ttl == 0 {
+		ttl = int64(cfg.MaxTTL)
+	}
+
+	if ttl > int64(cfg.MaxTTL) {
+		return nil, fmt.Errorf("TTL %d exceeds maximum of %d", ttl, int64(cfg.MaxTTL))
+	}
+
 	svc := service.NewWithBaseURL(cfg.APIKey, cfg.BaseURL)
 	ts := time.Now().UnixNano()
 	name := fmt.Sprintf("%s-%d", keyPrefix, ts)
 
-	tokenID, bearerToken, err := svc.CreateAuthToken(ctx, name)
+	b.Logger().Info(fmt.Sprintf("creating token with %s and with TTL of %d", name, ttl))
+
+	tokenID, bearerToken, err := svc.CreateAuthToken(ctx, name, ttl)
 	if err != nil {
 		return nil, err
 	}
@@ -78,8 +104,7 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 				pathTokenID:   tokenID,
 			},
 			LeaseOptions: logical.LeaseOptions{
-				// TODO: add user-configurable TTL
-				TTL: time.Until(time.Now().Add(ttl)),
+				TTL: time.Duration(ttl) * time.Second,
 			},
 		},
 	}, nil
