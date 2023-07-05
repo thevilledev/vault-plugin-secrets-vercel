@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	BaseURL     = "https://api.vercel.com/v3"
-	httpTimeout = 60 * time.Second
+	DefaultBaseURL = "https://api.vercel.com/v3"
+	httpTimeout    = 60 * time.Second
 )
 
 type Client struct {
@@ -21,7 +21,7 @@ type Client struct {
 
 func New(apiKey string) *Client {
 	return &Client{
-		baseURL: BaseURL,
+		baseURL: DefaultBaseURL,
 		httpClient: &http.Client{
 			Timeout: httpTimeout,
 		},

@@ -98,7 +98,7 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 	}
 
 	if config.BaseURL == "" {
-		config.BaseURL = client.BaseURL
+		config.BaseURL = client.DefaultBaseURL
 	}
 
 	e, err := logical.StorageEntryJSON(pathPatternConfig, config)

@@ -85,8 +85,16 @@ func (c *Client) DeleteAuthToken(ctx context.Context, req *DeleteAuthTokenReques
 		return nil, err
 	}
 
+	validStatusAbove := 200
+	invalidStatusBelow := 300
+
+	ok := res.StatusCode >= validStatusAbove && res.StatusCode < invalidStatusBelow
+	if !ok {
+		return nil, fmt.Errorf("http error %d with response body '%+v'", res.StatusCode, string(body))
+	}
+
 	if err = json.Unmarshal(body, &resp); err != nil {
-		return resp, err
+		return nil, err
 	}
 
 	return resp, nil
