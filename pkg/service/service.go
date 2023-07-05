@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/thevilledev/vault-plugin-secrets-vercel/pkg/client"
 )
@@ -16,14 +17,18 @@ type Token struct {
 }
 
 func New(apiKey string) *Service {
+	c := &http.Client{}
+
 	return &Service{
-		apiClient: client.New(apiKey),
+		apiClient: client.New(apiKey, c),
 	}
 }
 
 func NewWithBaseURL(apiKey string, baseURL string) *Service {
+	c := &http.Client{}
+
 	return &Service{
-		apiClient: client.NewWithBaseURL(apiKey, baseURL),
+		apiClient: client.NewWithBaseURL(apiKey, c, baseURL),
 	}
 }
 
