@@ -16,7 +16,7 @@ import (
 func TestToken_Create(t *testing.T) {
 	t.Parallel()
 
-	t.Run("CreateTokenWithEmptyBackend", func(t *testing.T) {
+	t.Run("CreateTokenWithoutBackend", func(t *testing.T) {
 		t.Parallel()
 
 		b, storage := newTestBackend(t)
@@ -27,7 +27,7 @@ func TestToken_Create(t *testing.T) {
 			Path:      pathPatternToken,
 			Data:      map[string]any{},
 		})
-		require.Equal(t, err, errMissingAPIKey)
+		require.Equal(t, err, errBackendNotConfigured)
 		require.Nil(t, r)
 	})
 
