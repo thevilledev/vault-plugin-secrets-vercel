@@ -12,6 +12,11 @@ builds:
       - linux
       - windows
       - darwin
+    goarch:
+      - amd64
+      - arm64
+    main: cmd/vault-plugin-secrets-vercel/main.go
+    binary: vault-plugin-secrets-vercel
 
 archives:
   - format: tar.gz
