@@ -7,7 +7,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
-	"github.com/thevilledev/vault-plugin-secrets-vercel/pkg/service"
+	"github.com/thevilledev/vault-plugin-secrets-vercel/internal/service"
 )
 
 const (

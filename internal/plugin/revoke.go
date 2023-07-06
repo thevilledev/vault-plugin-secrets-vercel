@@ -6,7 +6,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
-	"github.com/thevilledev/vault-plugin-secrets-vercel/pkg/service"
+	"github.com/thevilledev/vault-plugin-secrets-vercel/internal/service"
 )
 
 func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {

@@ -9,7 +9,7 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
-	"github.com/thevilledev/vault-plugin-secrets-vercel/pkg/client"
+	"github.com/thevilledev/vault-plugin-secrets-vercel/internal/client"
 )
 
 func TestRevokeToken(t *testing.T) {
