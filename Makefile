@@ -10,12 +10,23 @@ ifndef OS
 	endif
 endif
 
+DATE 		=$(shell date '+%a %b %d %H:%m:%S %Z %Y')
+REVISION 	=$(shell git rev-parse --verify --short HEAD)
+VERSION 	=$(shell git describe --always --tags --exact-match 2>/dev/null || \
+				echo $(REVISION))
+
+LDFLAGS =-s -w -extld ld -extldflags -static \
+		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.BuildDate=$(DATE)' \
+		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Version=$(VERSION)' \
+		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Commit=$(REVISION)'
+FLAGS	=-trimpath -a -ldflags "$(LDFLAGS)"
+
 .DEFAULT_GOAL := all
 
 all: fmt build start
 
 build:
-	GOOS=$(OS) GOARCH="$(GOARCH)" go build -o vault/plugins/vault-plugin-secrets-vercel cmd/vault-plugin-secrets-vercel/main.go
+	CGO_ENABLED=0 GOOS=$(OS) GOARCH="$(GOARCH)" go build $(FLAGS) -o vault/plugins/vault-plugin-secrets-vercel cmd/vault-plugin-secrets-vercel/main.go
 
 start:
 	VAULT_ADDR='http://127.0.0.1:8200' VAULT_API_ADDR='http://127.0.0.1:8200' vault server -dev -dev-root-token-id=root -dev-plugin-dir=./vault/plugins

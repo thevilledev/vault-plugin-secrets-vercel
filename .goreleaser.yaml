@@ -1,9 +1,6 @@
-# This is an example .goreleaser.yml file with some sensible defaults.
-# Make sure to check the documentation at https://goreleaser.com
 before:
   hooks:
     - go mod tidy
-    - go generate ./...
 
 builds:
   - env:
@@ -17,6 +14,22 @@ builds:
       - arm64
     main: cmd/vault-plugin-secrets-vercel/main.go
     binary: vault-plugin-secrets-vercel
+    flags:
+      - -v
+      - -trimpath
+      - -a
+    ldflags:
+      - -s
+      - -w
+      - -extld ld
+      - -extldflags
+      - -static
+      - -X github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.BuildDate={{.Date}}
+      - -X github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Version={{.Version}}
+      - -X github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Commit={{.FullCommit}}
+      - -X github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Dirty={{.IsGitDirty}}
+      - -X github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.CommitDate={{.CommitDate}}
+      - -X github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Branch={{.Branch}}
 
 archives:
   - format: tar.gz
@@ -38,6 +51,6 @@ changelog:
   sort: asc
   filters:
     exclude:
-      - '^chore(docs):'
-      - '^chore(test):'
-      - '^chore(ci):'
+      - '^chore(docs)'
+      - '^chore(test)'
+      - '^chore(ci)'
