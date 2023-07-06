@@ -19,8 +19,9 @@ const (
 )
 
 var (
-	errMissingAPIKey       = errors.New("missing API key from configuration")
-	errTypeAssertionFailed = errors.New("type assertion failed")
+	errBackendNotConfigured = errors.New("backend not configured")
+	errMissingAPIKey        = errors.New("missing API key from configuration")
+	errTypeAssertionFailed  = errors.New("type assertion failed")
 )
 
 type backendConfig struct {
@@ -57,6 +58,9 @@ func (b *backend) pathConfig() []*framework.Path {
 				logical.CreateOperation: &framework.PathOperation{
 					Callback: b.pathConfigWrite,
 				},
+				logical.DeleteOperation: &framework.PathOperation{
+					Callback: b.pathConfigDelete,
+				},
 			},
 		},
 	}
@@ -71,7 +75,7 @@ func (b *backend) getConfig(ctx context.Context, storage logical.Storage) (*back
 	}
 
 	if e == nil || len(e.Value) == 0 {
-		return &backendConfig{}, nil
+		return nil, nil
 	}
 
 	if err = e.DecodeJSON(&config); err != nil {
@@ -138,6 +142,24 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 	}
 
 	b.Logger().Info("config initialised")
+
+	return &logical.Response{}, nil
+}
+
+func (b *backend) pathConfigDelete(ctx context.Context, req *logical.Request,
+	data *framework.FieldData) (*logical.Response, error) {
+	cfg, err := b.getConfig(ctx, req.Storage)
+	if err != nil {
+		return nil, err
+	}
+
+	if cfg == nil {
+		return nil, errBackendNotConfigured
+	}
+
+	if err = req.Storage.Delete(ctx, pathPatternConfig); err != nil {
+		return nil, err
+	}
 
 	return &logical.Response{}, nil
 }

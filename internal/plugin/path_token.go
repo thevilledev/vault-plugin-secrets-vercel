@@ -58,8 +58,8 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 		return nil, err
 	}
 
-	if cfg.APIKey == "" {
-		return nil, errMissingAPIKey
+	if cfg == nil {
+		return nil, errBackendNotConfigured
 	}
 
 	ttl := int64(0)
