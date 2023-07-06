@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/thevilledev/vault-plugin-secrets-vercel/pkg/client"
+	"github.com/thevilledev/vault-plugin-secrets-vercel/internal/client"
 )
 
 type Service struct {

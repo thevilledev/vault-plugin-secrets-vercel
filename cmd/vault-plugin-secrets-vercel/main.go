@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/vault/api"
 	"github.com/hashicorp/vault/sdk/plugin"
-	vercelPlugin "github.com/thevilledev/vault-plugin-secrets-vercel/pkg/plugin"
+	vercelPlugin "github.com/thevilledev/vault-plugin-secrets-vercel/internal/plugin"
 )
 
 func main() {
