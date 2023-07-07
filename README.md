@@ -13,7 +13,7 @@ Any Pro/Enterprise plan features, such as these, are scoped out:
 - Team-specific tokens
 - Token-specific scope or permissions
 
-Access to Pro/Enterprise plan or contributions are welcome, of course!
+Contributions are welcome, of course!
 
 ## Getting started
 
