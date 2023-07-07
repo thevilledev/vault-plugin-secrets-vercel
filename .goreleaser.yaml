@@ -30,6 +30,7 @@ builds:
       - -X github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Dirty={{.IsGitDirty}}
       - -X github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.CommitDate={{.CommitDate}}
       - -X github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Branch={{.Branch}}
+      - -X github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Tag={{.Tag}}
 
 archives:
   - format: tar.gz

@@ -14,11 +14,21 @@ DATE 		=$(shell date '+%a %b %d %H:%m:%S %Z %Y')
 REVISION 	=$(shell git rev-parse --verify --short HEAD)
 VERSION 	=$(shell git describe --always --tags --exact-match 2>/dev/null || \
 				echo $(REVISION))
+BRANCH		=$(shell git rev-parse --abbrev-ref HEAD)
+DIRTY		=false
+
+ifneq ($(shell git status --porcelain),)
+    DIRTY = true
+endif
 
 LDFLAGS =-s -w -extld ld -extldflags -static \
 		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.BuildDate=$(DATE)' \
 		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Version=$(VERSION)' \
-		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Commit=$(REVISION)'
+		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Commit=$(REVISION)' \
+		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.CommitDate=$(REVISION)' \
+		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Branch=$(BRANCH)' \
+		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Tag=$(VERSION)' \
+		  -X 'github.com/thevilledev/vault-plugin-secrets-vercel/internal/version.Dirty=$(DIRTY)'
 FLAGS	=-trimpath -a -ldflags "$(LDFLAGS)"
 
 .DEFAULT_GOAL := all
