@@ -5,6 +5,11 @@ on:
     branches:
       - main
   pull_request:
+    paths:
+      - '**.go'
+      - 'go.mod'
+      - 'go.sum'
+      - '.golangci.yml'
 
 jobs:
   run-linters:
