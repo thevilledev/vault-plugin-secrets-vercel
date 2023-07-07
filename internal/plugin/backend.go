@@ -46,6 +46,7 @@ func newBackend() *backend {
 		Paths: framework.PathAppend(
 			b.pathConfig(),
 			b.pathToken(),
+			b.pathInfo(),
 		),
 		Secrets: []*framework.Secret{
 			{
