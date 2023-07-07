@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -30,15 +31,21 @@ func (b *backend) pathInfoRead(
 	_ *logical.Request,
 	_ *framework.FieldData,
 ) (*logical.Response, error) {
+	var m map[string]any
+
+	v := version.New()
+
+	bs, err := json.Marshal(v)
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(bs, &m)
+	if err != nil {
+		return nil, err
+	}
+
 	return &logical.Response{
-		Data: map[string]any{
-			"build_date":        version.BuildDate,
-			"build_version":     version.Version,
-			"build_commit":      version.Commit,
-			"build_commit_date": version.CommitDate,
-			"build_branch":      version.Branch,
-			"build_tag":         version.Tag,
-			"build_dirty":       version.Dirty,
-		},
+		Data: m,
 	}, nil
 }
