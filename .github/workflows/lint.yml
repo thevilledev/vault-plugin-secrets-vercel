@@ -10,6 +10,7 @@ on:
       - 'go.mod'
       - 'go.sum'
       - '.golangci.yml'
+      - '.github/workflows/lint.yml'
 
 jobs:
   run-linters:

@@ -10,6 +10,7 @@ on:
       - 'go.mod'
       - 'go.sum'
       - 'Makefile'
+      - '.github/workflows/build.yml'
 
 jobs:
   Test:
