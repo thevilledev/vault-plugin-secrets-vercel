@@ -13,12 +13,12 @@ your operating system and architecture.
 
 ### Verifying the plugin build
 
-All builds have a matching SHA256 checksum. These are signed and the matching public key can be found from [signing-key-public.asc](/signing-key-public.asc).
+All builds have a matching SHA256 checksum. These are signed and the matching public key can be found from [signing-key-public.asc](https://raw.githubusercontent.com/thevilledev/vault-plugin-secrets-vercel/main/signing-key-public.asc).
 
 You can validate these builds by doing the following:
 
 - Download the release files `vault-plugin-secrets-vercel_<version>_SHA256SUMS` and `vault-plugin-secrets-vercel_<version>_SHA256SUMS.sig` to the same directory.
-- Download the signing key [signing-key-public.asc](/signing-key-public.asc).
+- Download the signing key [signing-key-public.asc](https://raw.githubusercontent.com/thevilledev/vault-plugin-secrets-vercel/main/signing-key-public.asc).
 - Import the signing key with `gpg --import signing-key-public.asc`
 - Verify checksums with `gpg --verify vault-plugin-secrets-vercel_<version>_SHA256SUMS.sig`
 
@@ -45,19 +45,21 @@ All good!
 Un-tar the installation package and move the plugin binary to the `plugin_directory` of your Vault installation. For example:
 
 ```
-$ mv vault-plugin-secrets-vercel /etc/vault/vault_plugins/
+$ mv vault-plugin-secrets-vercel /opt/vault/plugins/
+$ chown vault:vault /opt/vault/plugins/vault-plugin-secrets-vercel
 ```
 
 Calculate the SHA256 checksum of the plugin binary.
 
 ```
-$ SHA256=$(sha256sum /etc/vault/vault_plugins/vault-plugin-secrets-vercel | cut -d ' ' -f1)
+$ SHA256=$(sha256sum /opt/vault/plugins/vault-plugin-secrets-vercel | cut -d ' ' -f1)
 ```
 
 And register the plugin into the Vault plugin catalog. This assumes you have Vault CLI access properly configured.
 
 ```
 $ vault plugin register -sha256=$SHA256 secret vault-plugin-secrets-vercel
+Success! Registered plugin: vault-plugin-secrets-vercel
 ```
 
 ## Enabling the plugin
@@ -66,6 +68,21 @@ To enable the plugin, run:
 
 ```
 $ vault secrets enable -path=vercel-secrets vault-plugin-secrets-vercel
+```
+
+Validate that it works:
+
+```
+$ vault read vercel-secrets/info
+Key                    Value
+---                    -----
+build_commit           78f02477a582126fb68e195b0c1de3df63f335bf
+build_commit_branch    HEAD
+build_commit_date      2023-07-07T19:10:53Z
+build_date             2023-07-07T19:13:32Z
+build_dirty            false
+build_tag              v0.2.4
+build_version          0.2.4
 ```
 
 ## Configuring the plugin
