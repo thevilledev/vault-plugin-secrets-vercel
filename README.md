@@ -74,3 +74,7 @@ Get started by following the documentation:
 - [Running the plugin locally](./docs/development.md)
 - [Configuring and generating tokens with the plugin](./docs/configuration.md)
 - [Installing the plugin to an existing Vault installation](./docs/install.md)
+
+## Contributing
+
+All contributions are welcome! Please see [contribution guidelines](./CONTRIBUTING.md).
