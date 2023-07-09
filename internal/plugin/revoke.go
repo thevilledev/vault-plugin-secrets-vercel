@@ -2,11 +2,16 @@ package plugin
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/thevilledev/vault-plugin-secrets-vercel/internal/service"
+)
+
+var (
+	errRemoteTokenRevokeFailed = errors.New("failed to revoke token from Vercel")
 )
 
 func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
@@ -16,7 +21,7 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 	}
 
 	if cfg.APIKey == "" {
-		return nil, fmt.Errorf("backend is missing the API key")
+		return nil, errBackendNotConfigured
 	}
 
 	svc := service.NewWithBaseURL(cfg.APIKey, cfg.BaseURL)
@@ -35,9 +40,9 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 
 	_, err = svc.DeleteAuthToken(ctx, ks)
 	if err != nil {
-		b.Logger().Error("token delete failed: %s", err)
+		b.Logger().Error("failed to revoke/delete the token from Vercel %s", err)
 
-		return nil, fmt.Errorf("failed to delete token: %w", err)
+		return nil, errRemoteTokenRevokeFailed
 	}
 
 	return &logical.Response{}, nil
