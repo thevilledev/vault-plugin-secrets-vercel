@@ -10,7 +10,11 @@ import (
 )
 
 const (
-	pathPatternInfo = "info"
+	pathPatternInfo            = "info"
+	pathPatternHelpDescription = `
+Build variables are set by the build process and include things like git tag, commit hash and build date.`
+	pathPatternHelpSynopsis = `
+Returns build information about this plugin.`
 )
 
 func (b *backend) pathInfo() []*framework.Path {
@@ -22,6 +26,8 @@ func (b *backend) pathInfo() []*framework.Path {
 					Callback: b.pathInfoRead,
 				},
 			},
+			HelpDescription: pathPatternHelpDescription,
+			HelpSynopsis:    pathPatternHelpSynopsis,
 		},
 	}
 }
