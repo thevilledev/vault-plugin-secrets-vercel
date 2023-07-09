@@ -2,7 +2,7 @@ package plugin
 
 import (
 	"context"
-	"fmt"
+	"errors"
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -13,6 +13,14 @@ const (
 	backendSecretType = "vercel_token"
 	backendPathHelp   = `
 Vercel Secrets backend is a secrets backend for dynamically managing Vercel tokens.`
+	secretTokenIDDescription = `
+Token ID of the generated API key is stored in the plugin backend.
+This ID is used for revocation purposes. It can only be used to identify a key,
+and cannot be used to do API operations.`
+)
+
+var (
+	errBackendEmptyConfig = errors.New("configuration passed into backend is nil")
 )
 
 type backend struct {
@@ -25,7 +33,7 @@ func Factory(ctx context.Context, conf *logical.BackendConfig) (logical.Backend,
 	b := newBackend()
 
 	if conf == nil {
-		return nil, fmt.Errorf("configuration passed into backend is nil")
+		return nil, errBackendEmptyConfig
 	}
 
 	if err := b.Setup(ctx, conf); err != nil {
@@ -52,7 +60,7 @@ func newBackend() *backend {
 				Fields: map[string]*framework.FieldSchema{
 					pathTokenID: {
 						Type:        framework.TypeString,
-						Description: "Vercel API token ID.",
+						Description: secretTokenIDDescription,
 					},
 				},
 				Revoke: b.Revoke,

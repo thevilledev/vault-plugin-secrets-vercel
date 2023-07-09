@@ -2,6 +2,7 @@ package plugin
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
@@ -16,24 +17,34 @@ const (
 	pathTokenID          = "token_id"
 	pathTokenBearerToken = "bearer_token"
 	pathTokenTTL         = "ttl"
+	//nolint:gosec
+	pathTokenTTLDescription = `
+(Optional) TTL for the generated API key ("bearer token"). Less than or equal to the maximum TTL set in configuration.
+Defaults to maximum TTL.`
+	pathTokenDescription = `
+Supports only read operations. Token ID for the generated key is stored in the plugin backend for revocation purposes.
+Generated bearer token is NOT stored in the plugin backend.
+Tokens are automatically revoked & deleted by Vault once TTL hits zero.
+Tokens cannot be renewed. Generate a new token if you need one.`
+	//nolint:gosec
+	pathTokenSynopsis = `
+Generate a Vercel API token with the given TTL.`
+)
+
+var (
+	errTokenMaxTTLExceeded = errors.New("given TTL exceeds the maximum allowed value")
 )
 
 func (b *backend) pathToken() []*framework.Path {
 	return []*framework.Path{
 		{
-			Pattern: pathPatternToken,
+			Pattern:         pathPatternToken,
+			HelpDescription: pathTokenDescription,
+			HelpSynopsis:    pathTokenSynopsis,
 			Fields: map[string]*framework.FieldSchema{
-				pathTokenID: {
-					Type:        framework.TypeString,
-					Description: "Token ID for the generated API key.",
-				},
-				pathTokenBearerToken: {
-					Type:        framework.TypeString,
-					Description: "Generated API key.",
-				},
 				pathTokenTTL: {
 					Type:        framework.TypeDurationSecond,
-					Description: "TTL for the generated API key. Less than or equal to the maximum TTL set in configuration.",
+					Description: pathTokenTTLDescription,
 				},
 			},
 			Operations: map[logical.Operation]framework.OperationHandler{
@@ -80,7 +91,7 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 	}
 
 	if ttl > int64(cfg.MaxTTL) {
-		return nil, fmt.Errorf("TTL %d exceeds maximum of %d", ttl, int64(cfg.MaxTTL))
+		return nil, errTokenMaxTTLExceeded
 	}
 
 	svc := service.NewWithBaseURL(cfg.APIKey, cfg.BaseURL)
