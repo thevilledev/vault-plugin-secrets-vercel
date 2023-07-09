@@ -1,5 +1,9 @@
 # vault-plugin-secrets-vercel
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/thevilledev/vault-plugin-secrets-vercel.svg)](https://pkg.go.dev/github.com/thevilledev/vault-plugin-secrets-vercel)
+[![Go Report Card](https://goreportcard.com/badge/github.com/thevilledev/vault-plugin-secrets-vercel)](https://goreportcard.com/report/github.com/thevilledev/vault-plugin-secrets-vercel)
+[![build](https://github.com/thevilledev/vault-plugin-secrets-vercel/actions/workflows/build.yml/badge.svg)](https://github.com/thevilledev/vault-plugin-secrets-vercel/actions/workflows/build.yml)
+
 Vault Secrets Plugin for Vercel allows you to dynamically generate Vercel API tokens through Vault.
 
 It is useful for more advanced CI/CD use cases where the common
