@@ -37,7 +37,8 @@ Generate a Vercel API token with the given TTL.`
 )
 
 var (
-	errTokenMaxTTLExceeded = errors.New("given TTL exceeds the maximum allowed value")
+	errTokenMaxTTLExceeded         = errors.New("given TTL exceeds the maximum allowed value")
+	errCannotOverrideDefaultTeamID = errors.New("cannot override team_id different than set on backend config")
 )
 
 func (b *backend) pathToken() []*framework.Path {
@@ -103,7 +104,7 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 		return nil, errTokenMaxTTLExceeded
 	}
 
-	teamID := ""
+	teamID := cfg.DefaultTeamID
 
 	if vr, ok := data.GetOk(pathTokenTeamID); ok {
 		v, ta := vr.(string)
@@ -111,6 +112,10 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 			b.Logger().Trace("type assertion failed: %+v", v)
 
 			return nil, errTypeAssertionFailed
+		}
+
+		if teamID != "" && v != "" && teamID != v {
+			return nil, errCannotOverrideDefaultTeamID
 		}
 
 		teamID = v
@@ -131,6 +136,7 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 		Data: map[string]any{
 			pathTokenID:          tokenID,
 			pathTokenBearerToken: bearerToken,
+			pathTokenTeamID:      teamID,
 		},
 		Secret: &logical.Secret{
 			InternalData: map[string]any{
