@@ -62,14 +62,16 @@ jobs:
 ```
 ## Scope
 
-Currently this project is scoped for personal (or "Hobby") Vercel accounts.
+Currently this project is scoped for personal (or "Hobby") and "Pro" Vercel accounts. This means you can create tokens that:
 
-Any Pro/Enterprise plan features, such as these, are scoped out:
+- Hobby: have *full admin level access* to your Vercel account
+- Pro: Project-level access only, when token creation is provided with the Token ID parameter
 
-- Team-specific tokens
-- Token-specific scope or permissions
+Enterprise plan features, such as these, are currently scoped out:
 
-Reason is, I don't have a Pro/Enterprise plan at hand. Contributions are welcome, of course!
+- Granular token-specific permissions
+
+Reason is, I don't have an Enterprise plan at hand. Contributions are welcome, of course!
 
 ## Getting started
 
