@@ -17,10 +17,15 @@ const (
 	pathTokenID          = "token_id"
 	pathTokenBearerToken = "bearer_token"
 	pathTokenTTL         = "ttl"
+	pathTokenTeamID      = "team_id"
 	//nolint:gosec
 	pathTokenTTLDescription = `
 (Optional) TTL for the generated API key ("bearer token"). Less than or equal to the maximum TTL set in configuration.
 Defaults to maximum TTL.`
+	//nolint:gosec
+	pathTokenTeamIDDescription = `
+(Optional) Team ID used for generating the API key.
+This acts as a scope for the key. It only has access to the given team.`
 	pathTokenDescription = `
 Supports only read operations. Token ID for the generated key is stored in the plugin backend for revocation purposes.
 Generated bearer token is NOT stored in the plugin backend.
@@ -45,6 +50,10 @@ func (b *backend) pathToken() []*framework.Path {
 				pathTokenTTL: {
 					Type:        framework.TypeDurationSecond,
 					Description: pathTokenTTLDescription,
+				},
+				pathTokenTeamID: {
+					Type:        framework.TypeString,
+					Description: pathTokenTeamIDDescription,
 				},
 			},
 			Operations: map[logical.Operation]framework.OperationHandler{
@@ -94,13 +103,26 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 		return nil, errTokenMaxTTLExceeded
 	}
 
+	teamID := ""
+
+	if vr, ok := data.GetOk(pathTokenTeamID); ok {
+		v, ta := vr.(string)
+		if !ta {
+			b.Logger().Trace("type assertion failed: %+v", v)
+
+			return nil, errTypeAssertionFailed
+		}
+
+		teamID = v
+	}
+
 	svc := service.NewWithBaseURL(cfg.APIKey, cfg.BaseURL)
 	ts := time.Now().UnixNano()
 	name := fmt.Sprintf("%s-%d", keyPrefix, ts)
 
 	b.Logger().Info(fmt.Sprintf("creating token with %s and with TTL of %d", name, ttl))
 
-	tokenID, bearerToken, err := svc.CreateAuthToken(ctx, name, ttl)
+	tokenID, bearerToken, err := svc.CreateAuthToken(ctx, name, ttl, teamID)
 	if err != nil {
 		return nil, err
 	}

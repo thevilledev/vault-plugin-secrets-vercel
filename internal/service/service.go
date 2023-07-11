@@ -34,7 +34,7 @@ func NewWithBaseURL(apiKey string, baseURL string) *Service {
 	}
 }
 
-func (s *Service) CreateAuthToken(ctx context.Context, name string, ttl int64) (string, string, error) {
+func (s *Service) CreateAuthToken(ctx context.Context, name string, ttl int64, teamID string) (string, string, error) {
 	if ttl <= 0 {
 		return "", "", fmt.Errorf("cannot create token with a ttl of 0")
 	}
@@ -43,6 +43,7 @@ func (s *Service) CreateAuthToken(ctx context.Context, name string, ttl int64) (
 	r, err := s.apiClient.CreateAuthToken(ctx, &client.CreateAuthTokenRequest{
 		Name:      name,
 		ExpiresAt: expiresAt,
+		TeamID:    teamID,
 	})
 
 	if err != nil {

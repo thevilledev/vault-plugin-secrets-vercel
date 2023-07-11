@@ -6,18 +6,18 @@ interactions:
         proto: HTTP/1.1
         proto_major: 1
         proto_minor: 1
-        content_length: 73
+        content_length: 78
         transfer_encoding: []
         trailer: {}
         host: api.vercel.com
         remote_addr: ""
         request_uri: ""
-        body: '{"name":"vault-plugin-secrets-vercel-fixtures-token-1689012065721779000"}'
+        body: '{"name":"vault-plugin-secrets-vercel-fixtures-token-team-1689012065721778000"}'
         form: {}
         headers:
             Content-Type:
                 - application/json
-        url: https://api.vercel.com/v3/user/tokens
+        url: https://api.vercel.com/v3/user/tokens?teamId=thevilledev-team-1
         method: POST
       response:
         proto: HTTP/1.1
@@ -25,9 +25,9 @@ interactions:
         proto_minor: 1
         transfer_encoding: []
         trailer: {}
-        content_length: 351
+        content_length: 438
         uncompressed: false
-        body: '{"bearerToken":"REDACTED","token":{"activeAt":1689012066309,"createdAt":1689012066309,"id":"886ee3911f94c8f9d1901bb4003a49ee7f760d68161e2f6bb9789490d9e4aa32","name":"vault-plugin-secrets-vercel-fixtures-token-1689012065721779000","origin":"manual","scopes":[{"createdAt":1689012066309,"origin":"manual","type":"user"}],"type":"token"}}'
+        body: '{"bearerToken":"REDACTED","token":{"activeAt":1689012066325,"createdAt":1689012066325,"id":"c2c0ea2e9219955b3e25ababf198a2d3214a2e9bdd2f4b2bcec183f048448116","name":"vault-plugin-secrets-vercel-fixtures-token-team-1689012065721778000","origin":"manual","scopes":[{"createdAt":1689012066325,"origin":"manual","teamId":"team_R7RNcANRyRyuUVnbl05UMHC4","type":"team"}],"teamId":"team_R7RNcANRyRyuUVnbl05UMHC4","type":"token"}}'
         headers:
             Access-Control-Allow-Headers:
                 - Authorization, Accept, Content-Type
@@ -40,7 +40,7 @@ interactions:
             Connection:
                 - keep-alive
             Content-Length:
-                - "351"
+                - "438"
             Content-Type:
                 - application/json; charset=utf-8
             Date:
@@ -52,16 +52,16 @@ interactions:
             X-Ratelimit-Limit:
                 - "32"
             X-Ratelimit-Remaining:
-                - "25"
+                - "24"
             X-Ratelimit-Reset:
                 - "1689015190"
             X-Vercel-Cache:
                 - MISS
             X-Vercel-Id:
-                - sfo1::8jwxb-1689012066290-805e1e30aab5
+                - sfo1::qn5t8-1689012066302-20a412a2e552
         status: 200 OK
         code: 200
-        duration: 700.348ms
+        duration: 700.31725ms
     - id: 1
       request:
         proto: HTTP/1.1
@@ -78,7 +78,7 @@ interactions:
         headers:
             Content-Type:
                 - application/json
-        url: https://api.vercel.com/v3/user/tokens/886ee3911f94c8f9d1901bb4003a49ee7f760d68161e2f6bb9789490d9e4aa32
+        url: https://api.vercel.com/v3/user/tokens/c2c0ea2e9219955b3e25ababf198a2d3214a2e9bdd2f4b2bcec183f048448116
         method: DELETE
       response:
         proto: HTTP/1.1
@@ -88,7 +88,7 @@ interactions:
         trailer: {}
         content_length: 78
         uncompressed: false
-        body: '{"tokenId":"886ee3911f94c8f9d1901bb4003a49ee7f760d68161e2f6bb9789490d9e4aa32"}'
+        body: '{"tokenId":"c2c0ea2e9219955b3e25ababf198a2d3214a2e9bdd2f4b2bcec183f048448116"}'
         headers:
             Access-Control-Allow-Headers:
                 - Authorization, Accept, Content-Type
@@ -113,13 +113,13 @@ interactions:
             X-Ratelimit-Limit:
                 - "50"
             X-Ratelimit-Remaining:
-                - "47"
+                - "46"
             X-Ratelimit-Reset:
                 - "1689012076"
             X-Vercel-Cache:
                 - MISS
             X-Vercel-Id:
-                - sfo1::qn5t8-1689012067254-ddac5b7d955a
+                - sfo1::8jwxb-1689012067254-50d4b76c6190
         status: 200 OK
         code: 200
-        duration: 258.311417ms
+        duration: 258.309958ms

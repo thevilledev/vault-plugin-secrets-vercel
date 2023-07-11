@@ -34,3 +34,28 @@ func TestCreateDeleteToken(t *testing.T) {
 		require.Equal(t, res2.ID, res.Token.ID)
 	})
 }
+
+func TestCreateDeleteTokenTeam(t *testing.T) {
+	t.Parallel()
+	recordHelper(t, "auth_token_team", func(ctx context.Context, t *testing.T, rec *recorder.Recorder, c *Client) {
+		t.Helper()
+
+		require.NotNil(t, c.httpClient)
+		pfx := "vault-plugin-secrets-vercel-fixtures-token-team"
+		ts := time.Now().UnixNano()
+		name := fmt.Sprintf("%s-%d", pfx, ts)
+		res, err := c.CreateAuthToken(ctx, &CreateAuthTokenRequest{
+			Name:   name,
+			TeamID: "thevilledev-team-1",
+		})
+		require.NoError(t, err)
+
+		res2, err := c.DeleteAuthToken(ctx, &DeleteAuthTokenRequest{
+			ID: res.Token.ID,
+		})
+
+		require.NoError(t, err)
+
+		require.Equal(t, res2.ID, res.Token.ID)
+	})
+}

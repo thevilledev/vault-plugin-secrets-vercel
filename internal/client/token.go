@@ -11,6 +11,7 @@ import (
 type CreateAuthTokenRequest struct {
 	Name      string `json:"name"`
 	ExpiresAt int64  `json:"expiresAt,omitempty"`
+	TeamID    string `json:"-"`
 }
 
 type CreateAuthTokenResponse struct {
@@ -41,7 +42,12 @@ func (c *Client) CreateAuthToken(ctx context.Context, req *CreateAuthTokenReques
 		return nil, err
 	}
 
-	res, err := c.do(ctx, http.MethodPost, "/user/tokens", b, nil)
+	p := make(map[string]string, 0)
+	if req.TeamID != "" {
+		p["teamId"] = req.TeamID
+	}
+
+	res, err := c.do(ctx, http.MethodPost, "/user/tokens", b, p)
 	if err != nil {
 		return nil, err
 	}
