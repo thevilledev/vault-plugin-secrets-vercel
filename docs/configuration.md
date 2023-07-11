@@ -30,7 +30,7 @@ token_id           bababababa
 Optional parameters are:
 
 - `ttl=<seconds>`: Custom lease duration. Has to be lower than or equal to `max_ttl` configured to the plugin backend.
-- `team_id=<vercel-team-id>`: Set token scope for a specific Vercel team. Requires a Vercel Pro plan.
+- `team_id=<vercel-team-id>`: Set token scope for a specific Vercel team. If backend configuration has a default team ID set, this value has to be equal to that. Requires a Vercel Pro plan.
 
 ## Revoke tokens
 

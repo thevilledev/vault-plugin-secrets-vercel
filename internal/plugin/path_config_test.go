@@ -66,6 +66,30 @@ func TestBackend_PathConfigWrite(t *testing.T) {
 		require.NotNil(t, cfg)
 		require.Equal(t, cfg.APIKey, "foo")
 	})
+
+	t.Run("WriteConfigurationWithValidTeamData", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		b, storage := newTestBackend(t)
+
+		_, err := b.HandleRequest(ctx, &logical.Request{
+			Storage:   storage,
+			Operation: logical.CreateOperation,
+			Path:      pathPatternConfig,
+			Data: map[string]any{
+				"api_key":         "foo",
+				"default_team_id": "bar",
+			},
+		})
+		require.NoError(t, err)
+
+		cfg, err := b.getConfig(ctx, storage)
+		require.NoError(t, err)
+		require.NotNil(t, cfg)
+		require.Equal(t, cfg.APIKey, "foo")
+		require.Equal(t, cfg.DefaultTeamID, "bar")
+	})
 }
 
 func TestBackend_PathConfigDelete(t *testing.T) {
