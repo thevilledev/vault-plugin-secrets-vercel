@@ -4,10 +4,14 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/thevilledev/vault-plugin-secrets-vercel)](https://goreportcard.com/report/github.com/thevilledev/vault-plugin-secrets-vercel)
 [![build](https://github.com/thevilledev/vault-plugin-secrets-vercel/actions/workflows/build.yml/badge.svg)](https://github.com/thevilledev/vault-plugin-secrets-vercel/actions/workflows/build.yml)
 
+## What?
+
 Vault Secrets Plugin for Vercel allows you to dynamically generate Vercel API tokens through Vault.
 
+## Why?
+
 It is useful for more advanced CI/CD use cases where the common
-[Vercel git integration](https://vercel.com/docs/concepts/deployments/git/vercel-for-github) is not being utilised.
+[Vercel git integration](https://vercel.com/docs/concepts/deployments/git/vercel-for-github) is not being utilised. That is, Vercel might not even have access to your VCS and you will need to push instead of pull.
 
 With this plugin, the CI/CD pipeline should:
 
@@ -15,9 +19,11 @@ With this plugin, the CI/CD pipeline should:
     - AppRole
     - JWT OIDC
     - A pre-defined token
-- Call the plugin to generate a short-lived Vercel token. TTL for the toke is user-configurable.
+- Call the plugin to generate a short-lived Vercel token. TTL and scope (Vercel team) for the token are user-configurable.
 - Run the actual deployment pipeline, such as [Github Actions for Vercel](https://vercel.com/guides/how-can-i-use-github-actions-with-vercel)
 - After token lifetime runs out, Vault revokes the token automatically.
+
+## Example
 
 Here's a full example of a Github Actions pipeline utilising this plugin:
 
@@ -60,18 +66,19 @@ jobs:
       - name: Deploy Project Artifacts to Vercel
         run: vercel deploy --prebuilt --token=${{ steps.secrets.outputs.VERCEL_TOKEN }}
 ```
-## Scope
 
-Currently this project is scoped for personal (or "Hobby") and "Pro" Vercel accounts. This means you can create tokens that:
+## Project scope
 
-- Hobby: have *full admin level access* to your Vercel account
-- Pro: Project-level access only, when token creation is provided with the Token ID parameter
+Currently this project is scoped for "Hobby" and "Pro" Vercel accounts. This means you can create tokens that:
+
+- Hobby: have *full admin level access* to your Vercel account.
+- Pro: have project-level access only. Applicable when token creation request is provided with the Token ID parameter.
 
 Enterprise plan features, such as these, are currently scoped out:
 
 - Granular token-specific permissions
 
-Reason is, I don't have an Enterprise plan at hand. Contributions are welcome, of course!
+I don't have an Enterprise plan at hand. Contributions are welcome, of course!
 
 ## Getting started
 
