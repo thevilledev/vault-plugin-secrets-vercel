@@ -10,7 +10,7 @@ var (
 	Dirty      string
 )
 
-type VersionInfo struct {
+type Info struct {
 	BuildDate  string `json:"build_date"`
 	Version    string `json:"build_version"`
 	Commit     string `json:"build_commit"`
@@ -20,8 +20,8 @@ type VersionInfo struct {
 	Dirty      string `json:"build_dirty"`
 }
 
-func New() *VersionInfo {
-	return &VersionInfo{
+func New() *Info {
+	return &Info{
 		BuildDate:  BuildDate,
 		Version:    Version,
 		Commit:     Commit,
