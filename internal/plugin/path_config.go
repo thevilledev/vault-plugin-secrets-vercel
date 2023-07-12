@@ -183,7 +183,7 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 }
 
 func (b *backend) pathConfigDelete(ctx context.Context, req *logical.Request,
-	data *framework.FieldData) (*logical.Response, error) {
+	_ *framework.FieldData) (*logical.Response, error) {
 	cfg, err := b.getConfig(ctx, req.Storage)
 	if err != nil {
 		return nil, err
