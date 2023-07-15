@@ -19,7 +19,7 @@ func TestToken_Create(t *testing.T) {
 	t.Run("CreateTokenWithoutBackend", func(t *testing.T) {
 		t.Parallel()
 
-		b, storage := newTestBackend(t)
+		b, storage := newTestBackend(t, nil)
 
 		r, err := b.HandleRequest(context.Background(), &logical.Request{
 			Storage:   storage,
@@ -34,7 +34,7 @@ func TestToken_Create(t *testing.T) {
 	t.Run("CreateTokenWithValidBackend", func(t *testing.T) {
 		t.Parallel()
 
-		b, storage := newTestBackend(t)
+		b, storage := newTestBackend(t, nil)
 
 		ts := httptest.NewServer(http.HandlerFunc(
 			func(w http.ResponseWriter, _ *http.Request) {
@@ -78,10 +78,54 @@ func TestToken_Create(t *testing.T) {
 		require.Equal(t, r.Secret.InternalData["token_id"], "foo")
 	})
 
+	t.Run("CreateTokenWithStorageFail", func(t *testing.T) {
+		t.Parallel()
+
+		disabledOps := []logical.Operation{logical.ReadOperation}
+		b, storage := newTestBackend(t, disabledOps)
+
+		ts := httptest.NewServer(http.HandlerFunc(
+			func(w http.ResponseWriter, _ *http.Request) {
+				t.Helper()
+
+				body, _ := json.Marshal(&client.CreateAuthTokenResponse{
+					Token: client.Token{
+						ID:   "foo",
+						Name: "bar",
+					},
+					BearerToken: "zyzz",
+				})
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(body)
+			}),
+		)
+		defer ts.Close()
+
+		_, err := b.HandleRequest(context.Background(), &logical.Request{
+			Storage:   storage,
+			Operation: logical.CreateOperation,
+			Path:      pathPatternConfig,
+			Data: map[string]interface{}{
+				"api_key":  "foo",
+				"base_url": ts.URL,
+			},
+		})
+		require.NoError(t, err)
+
+		r, err := b.HandleRequest(context.Background(), &logical.Request{
+			Storage:   storage,
+			Operation: logical.ReadOperation,
+			Path:      pathPatternToken,
+			Data:      map[string]any{},
+		})
+		require.Error(t, err)
+		require.Nil(t, r)
+	})
+
 	t.Run("CreateTokenWithUpstreamAPIError", func(t *testing.T) {
 		t.Parallel()
 
-		b, storage := newTestBackend(t)
+		b, storage := newTestBackend(t, nil)
 
 		ts := httptest.NewServer(http.HandlerFunc(
 			func(w http.ResponseWriter, _ *http.Request) {
@@ -118,7 +162,7 @@ func TestToken_Create(t *testing.T) {
 	t.Run("CreateTokenWithConflictingTTLs", func(t *testing.T) {
 		t.Parallel()
 
-		b, storage := newTestBackend(t)
+		b, storage := newTestBackend(t, nil)
 
 		ts := httptest.NewServer(http.HandlerFunc(
 			func(w http.ResponseWriter, _ *http.Request) {
@@ -163,7 +207,7 @@ func TestToken_Create(t *testing.T) {
 	t.Run("CreateTokenWithDefaultTeamID", func(t *testing.T) {
 		t.Parallel()
 
-		b, storage := newTestBackend(t)
+		b, storage := newTestBackend(t, nil)
 
 		ts := httptest.NewServer(http.HandlerFunc(
 			func(w http.ResponseWriter, _ *http.Request) {
@@ -204,10 +248,55 @@ func TestToken_Create(t *testing.T) {
 		require.Equal(t, r.Data["team_id"], "foo")
 	})
 
+	t.Run("CreateTokenWithTeamID", func(t *testing.T) {
+		t.Parallel()
+
+		b, storage := newTestBackend(t, nil)
+
+		ts := httptest.NewServer(http.HandlerFunc(
+			func(w http.ResponseWriter, _ *http.Request) {
+				t.Helper()
+
+				body, _ := json.Marshal(&client.CreateAuthTokenResponse{
+					Token: client.Token{
+						ID:   "foo",
+						Name: "bar",
+					},
+					BearerToken: "zyzz",
+				})
+				w.WriteHeader(http.StatusOK)
+				_, _ = w.Write(body)
+			}),
+		)
+		defer ts.Close()
+
+		_, err := b.HandleRequest(context.Background(), &logical.Request{
+			Storage:   storage,
+			Operation: logical.CreateOperation,
+			Path:      pathPatternConfig,
+			Data: map[string]any{
+				"api_key":  "foo",
+				"base_url": ts.URL,
+			},
+		})
+		require.NoError(t, err)
+
+		r, err := b.HandleRequest(context.Background(), &logical.Request{
+			Storage:   storage,
+			Operation: logical.CreateOperation,
+			Path:      pathPatternToken,
+			Data: map[string]any{
+				"team_id": "bar",
+			},
+		})
+		require.NoError(t, err)
+		require.Equal(t, r.Data["team_id"], "bar")
+	})
+
 	t.Run("CreateTokenWithConflictingTeamIDs", func(t *testing.T) {
 		t.Parallel()
 
-		b, storage := newTestBackend(t)
+		b, storage := newTestBackend(t, nil)
 
 		ts := httptest.NewServer(http.HandlerFunc(
 			func(w http.ResponseWriter, _ *http.Request) {

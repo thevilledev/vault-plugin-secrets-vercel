@@ -3,7 +3,6 @@ package plugin
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -12,6 +11,7 @@ import (
 
 var (
 	errRemoteTokenRevokeFailed = errors.New("failed to revoke token from Vercel")
+	errInternalDataMissing     = errors.New("missing internal data from secret")
 )
 
 func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework.FieldData) (*logical.Response, error) {
@@ -20,7 +20,7 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 		return nil, err
 	}
 
-	if cfg.APIKey == "" {
+	if cfg == nil {
 		return nil, errBackendNotConfigured
 	}
 
@@ -28,15 +28,10 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 
 	k, ok := req.Secret.InternalData[pathTokenID]
 	if !ok {
-		return nil, fmt.Errorf("token ID is missing from the secret")
+		return nil, errInternalDataMissing
 	}
 
-	ks, ok := k.(string)
-	if !ok {
-		b.Logger().Trace("type assertion failed: %+v", ks)
-
-		return nil, errTypeAssertionFailed
-	}
+	ks, _ := k.(string)
 
 	_, err = svc.DeleteAuthToken(ctx, ks)
 	if err != nil {

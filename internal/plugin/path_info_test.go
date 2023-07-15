@@ -26,7 +26,7 @@ func TestPathInfo(t *testing.T) {
 		version.Version = "0.0.1"
 
 		ctx := context.Background()
-		b, storage := newTestBackend(t)
+		b, storage := newTestBackend(t, nil)
 
 		res, err := b.HandleRequest(ctx, &logical.Request{
 			Storage:   storage,

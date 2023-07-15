@@ -86,13 +86,7 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 	ttl := int64(0)
 
 	if vr, ok := data.GetOk(pathTokenTTL); ok {
-		v, ta := vr.(int)
-		if !ta {
-			b.Logger().Trace("type assertion failed: %+v", v)
-
-			return nil, errTypeAssertionFailed
-		}
-
+		v, _ := vr.(int)
 		ttl = int64(v)
 	}
 
@@ -107,13 +101,7 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 	teamID := cfg.DefaultTeamID
 
 	if vr, ok := data.GetOk(pathTokenTeamID); ok {
-		v, ta := vr.(string)
-		if !ta {
-			b.Logger().Trace("type assertion failed: %+v", v)
-
-			return nil, errTypeAssertionFailed
-		}
-
+		v, _ := vr.(string)
 		if teamID != "" && v != "" && teamID != v {
 			return nil, errCannotOverrideDefaultTeamID
 		}
