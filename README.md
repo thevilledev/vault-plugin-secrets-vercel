@@ -3,6 +3,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/thevilledev/vault-plugin-secrets-vercel.svg)](https://pkg.go.dev/github.com/thevilledev/vault-plugin-secrets-vercel)
 [![Go Report Card](https://goreportcard.com/badge/github.com/thevilledev/vault-plugin-secrets-vercel)](https://goreportcard.com/report/github.com/thevilledev/vault-plugin-secrets-vercel)
 [![build](https://github.com/thevilledev/vault-plugin-secrets-vercel/actions/workflows/build.yml/badge.svg)](https://github.com/thevilledev/vault-plugin-secrets-vercel/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/thevilledev/vault-plugin-secrets-vercel/branch/main/graph/badge.svg?token=BD9RMDI33W)](https://codecov.io/gh/thevilledev/vault-plugin-secrets-vercel)
 
 ## What?
 
