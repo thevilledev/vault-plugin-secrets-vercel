@@ -39,7 +39,7 @@ If set, individual tokens cannot override this value per token.`
 var (
 	errBackendNotConfigured = errors.New("backend not configured")
 	errMissingAPIKey        = errors.New("missing API key from configuration")
-	errTypeAssertionFailed  = errors.New("type assertion failed")
+	errGetConfig            = errors.New("failed to get config from storage")
 )
 
 type backendConfig struct {
@@ -98,7 +98,7 @@ func (b *backend) getConfig(ctx context.Context, storage logical.Storage) (*back
 
 	e, err := storage.Get(ctx, pathPatternConfig)
 	if err != nil {
-		return nil, err
+		return nil, errGetConfig
 	}
 
 	if e == nil || len(e.Value) == 0 {
@@ -117,39 +117,19 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 	config := &backendConfig{}
 
 	if v, ok := data.GetOk(pathConfigAPIKey); ok {
-		config.APIKey, ok = v.(string)
-		if !ok {
-			b.Logger().Trace("type assertion failed: %+v", v)
-
-			return nil, errTypeAssertionFailed
-		}
+		config.APIKey, _ = v.(string)
 	}
 
 	if v, ok := data.GetOk(pathConfigDefaultTeamID); ok {
-		config.DefaultTeamID, ok = v.(string)
-		if !ok {
-			b.Logger().Trace("type assertion failed: %+v", v)
-
-			return nil, errTypeAssertionFailed
-		}
+		config.DefaultTeamID, _ = v.(string)
 	}
 
 	if v, ok := data.GetOk(pathConfigBaseURL); ok {
-		config.BaseURL, ok = v.(string)
-		if !ok {
-			b.Logger().Trace("type assertion failed: %+v", v)
-
-			return nil, errTypeAssertionFailed
-		}
+		config.BaseURL, _ = v.(string)
 	}
 
 	if vr, ok := data.GetOk(pathConfigMaxTTL); ok {
-		v, ta := vr.(int)
-		if !ta {
-			b.Logger().Trace("type assertion failed: %+v", v)
-
-			return nil, errTypeAssertionFailed
-		}
+		v, _ := vr.(int)
 
 		ttl := time.Duration(v) * time.Second
 

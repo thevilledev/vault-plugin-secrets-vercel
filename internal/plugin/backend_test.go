@@ -45,11 +45,28 @@ func TestFactory(t *testing.T) {
 	}
 }
 
-func newTestBackend(t *testing.T) (*backend, logical.Storage) {
+func newTestBackend(t *testing.T, disabledOps []logical.Operation) (*backend, logical.Storage) {
 	t.Helper()
 
 	config := logical.TestBackendConfig()
-	config.StorageView = new(logical.InmemStorage)
+	sw := new(logical.InmemStorage)
+
+	for _, v := range disabledOps {
+		switch v {
+		case logical.ReadOperation:
+			sw.Underlying().FailGet(true)
+		case logical.UpdateOperation:
+			sw.Underlying().FailPut(true)
+		case logical.DeleteOperation:
+			sw.Underlying().FailDelete(true)
+		case logical.CreateOperation:
+			sw.Underlying().FailPut(true)
+		case logical.RevokeOperation:
+			sw.Underlying().FailDelete(true)
+		}
+	}
+
+	config.StorageView = sw
 	config.Logger = hclog.NewNullLogger()
 	br, err := Factory(context.Background(), config)
 	require.NoError(t, err)
@@ -89,7 +106,7 @@ func TestBackend_Config(t *testing.T) {
 			t.Parallel()
 
 			ctx := context.Background()
-			b, storage := newTestBackend(t)
+			b, storage := newTestBackend(t, nil)
 
 			if tc.input != nil {
 				require.NoError(t, storage.Put(ctx, &logical.StorageEntry{

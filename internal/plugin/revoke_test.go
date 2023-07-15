@@ -19,7 +19,7 @@ func TestRevokeToken(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		b, storage := newTestBackend(t)
+		b, storage := newTestBackend(t, nil)
 
 		ts := httptest.NewServer(http.HandlerFunc(
 			func(w http.ResponseWriter, _ *http.Request) {
@@ -65,7 +65,7 @@ func TestRevokeToken(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
-		b, storage := newTestBackend(t)
+		b, storage := newTestBackend(t, nil)
 
 		ts := httptest.NewServer(http.HandlerFunc(
 			func(w http.ResponseWriter, _ *http.Request) {
@@ -100,5 +100,117 @@ func TestRevokeToken(t *testing.T) {
 			},
 		})
 		require.Error(t, err)
+	})
+
+	t.Run("RevokeTokenStorageFail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		disabledOps := []logical.Operation{logical.ReadOperation}
+		b, storage := newTestBackend(t, disabledOps)
+
+		ts := httptest.NewServer(http.HandlerFunc(
+			func(w http.ResponseWriter, _ *http.Request) {
+				t.Helper()
+
+				w.WriteHeader(http.StatusForbidden)
+			}),
+		)
+		defer ts.Close()
+
+		_, err := b.HandleRequest(ctx, &logical.Request{
+			Storage:   storage,
+			Operation: logical.CreateOperation,
+			Path:      pathPatternConfig,
+			Data: map[string]any{
+				"api_key":  "foo",
+				"base_url": ts.URL,
+			},
+		})
+		require.NoError(t, err)
+
+		_, err = b.HandleRequest(context.Background(), &logical.Request{
+			Storage:   storage,
+			Operation: logical.RevokeOperation,
+			Path:      pathPatternToken,
+			Data:      map[string]any{},
+			Secret: &logical.Secret{
+				InternalData: map[string]any{
+					"secret_type": backendSecretType,
+					"token_id":    "zyzz",
+				},
+			},
+		})
+		require.Error(t, err)
+	})
+
+	t.Run("RevokeTokenBackendNotConfigured", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		b, storage := newTestBackend(t, nil)
+
+		ts := httptest.NewServer(http.HandlerFunc(
+			func(w http.ResponseWriter, _ *http.Request) {
+				t.Helper()
+
+				w.WriteHeader(http.StatusForbidden)
+			}),
+		)
+		defer ts.Close()
+
+		_, err := b.HandleRequest(ctx, &logical.Request{
+			Storage:   storage,
+			Operation: logical.RevokeOperation,
+			Path:      pathPatternToken,
+			Data:      map[string]any{},
+			Secret: &logical.Secret{
+				InternalData: map[string]any{
+					"secret_type": backendSecretType,
+					"token_id":    "zyzz",
+				},
+			},
+		})
+		require.Error(t, err)
+	})
+
+	t.Run("RevokeTokenInternalStorageFail", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		b, storage := newTestBackend(t, nil)
+
+		ts := httptest.NewServer(http.HandlerFunc(
+			func(w http.ResponseWriter, _ *http.Request) {
+				t.Helper()
+
+				w.WriteHeader(http.StatusForbidden)
+			}),
+		)
+		defer ts.Close()
+
+		_, err := b.HandleRequest(ctx, &logical.Request{
+			Storage:   storage,
+			Operation: logical.CreateOperation,
+			Path:      pathPatternConfig,
+			Data: map[string]any{
+				"api_key":  "foo",
+				"base_url": ts.URL,
+			},
+		})
+		require.NoError(t, err)
+
+		_, err = b.HandleRequest(context.Background(), &logical.Request{
+			Storage:   storage,
+			Operation: logical.RevokeOperation,
+			Path:      pathPatternToken,
+			Data:      map[string]any{},
+			Secret: &logical.Secret{
+				InternalData: map[string]any{
+					"secret_type": backendSecretType,
+				},
+			},
+		})
+		require.Equal(t, err, errInternalDataMissing)
 	})
 }
