@@ -34,6 +34,8 @@ func TestClient(t *testing.T) {
 		hc := &http.Client{}
 
 		k := NewAPIClientWithBaseURL("foo", hc, "http://doesnotexist")
+		u := k.GetBaseURL()
+		require.Equal(t, u, "http://doesnotexist")
 		_, err := k.do(ctx, http.MethodGet, "/", nil, nil)
 		require.Error(t, err)
 	})
