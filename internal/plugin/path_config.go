@@ -26,7 +26,8 @@ Delete operation is supported.`
 Configure the Vercel plugin backend.`
 	//nolint:gosec
 	pathConfigAPIKeyDescription = `
-(Required) Vercel API key used to generate new tokens.`
+(Required) Vercel API key used to generate new tokens.
+Setting this key to "mock" enables mock service client for development purposes.`
 	pathConfigBaseURLDescription = `
 (Optional) Base URL for the Vercel API. Used by mock tests mostly.`
 	pathConfigMaxTTLDescription = `
