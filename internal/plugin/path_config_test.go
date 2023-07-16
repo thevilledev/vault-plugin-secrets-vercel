@@ -6,217 +6,255 @@ import (
 
 	"github.com/hashicorp/vault/sdk/logical"
 	"github.com/stretchr/testify/require"
+	"github.com/thevilledev/vault-plugin-secrets-vercel/internal/client"
 )
 
-func TestBackend_PathConfigRead(t *testing.T) {
+func TestConfig_Get(t *testing.T) {
 	t.Parallel()
 
-	t.Run("ReadConfiguration", func(t *testing.T) {
-		t.Parallel()
+	cases := map[string]struct {
+		input       []byte
+		disabledOps []logical.Operation
+		cfg         *backendConfig
+		expError    string
+	}{
+		"empty": {},
+		"default": {
+			input: []byte(`{"api_key": "foo"}`),
+			cfg:   &backendConfig{APIKey: "foo"},
+		},
+		"invalid config json": {
+			input:    []byte(`lorem ipsum`),
+			cfg:      &backendConfig{},
+			expError: "failed to decode config",
+		},
+		"storage fail": {
+			disabledOps: []logical.Operation{
+				logical.ReadOperation,
+			},
+			expError: "failed to get config from storage",
+		},
+	}
+	for name, tc := range cases {
+		tc := tc
 
-		ctx := context.Background()
-		b, storage := newTestBackend(t, nil)
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
-		_, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.ReadOperation,
-			Path:      pathPatternConfig,
+			ctx := context.Background()
+			b, storage := newTestBackend(t, tc.disabledOps)
+
+			if tc.input != nil {
+				require.NoError(t, storage.Put(ctx, &logical.StorageEntry{
+					Key:   pathPatternConfig,
+					Value: tc.input,
+				}))
+			}
+
+			res, err := b.getConfig(ctx, storage)
+			if tc.expError != "" {
+				require.EqualError(t, err, tc.expError)
+				require.Nil(t, res)
+			} else {
+				require.NoError(t, err)
+			}
 		})
-		require.Error(t, err)
-	})
+	}
 }
 
-func TestBackend_PathConfigWrite(t *testing.T) {
+func TestConfig_Read(t *testing.T) {
 	t.Parallel()
 
-	t.Run("WriteConfigurationWithEmptyData", func(t *testing.T) {
-		t.Parallel()
+	cases := map[string]struct {
+		disabledOps []logical.Operation
+		inputConfig []byte
+		expError    string
+	}{
+		"read configuration": {
+			inputConfig: []byte(`{"api_key": "foo"}`),
+			expError:    "unsupported operation",
+		},
+	}
+	for name, tc := range cases {
+		tc := tc
 
-		ctx := context.Background()
-		b, storage := newTestBackend(t, nil)
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
 
-		_, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.CreateOperation,
-			Path:      pathPatternConfig,
-			Data:      map[string]any{},
+			ctx := context.Background()
+
+			b, storage := newTestBackend(t, tc.disabledOps)
+
+			if tc.inputConfig != nil {
+				require.NoError(t, storage.Put(ctx, &logical.StorageEntry{
+					Key:   pathPatternConfig,
+					Value: tc.inputConfig,
+				}))
+			}
+
+			res, err := b.HandleRequest(ctx, &logical.Request{
+				Storage:   storage,
+				Operation: logical.ReadOperation,
+				Path:      pathPatternConfig,
+			})
+
+			if tc.expError != "" {
+				require.EqualError(t, err, tc.expError)
+				require.Nil(t, res)
+			} else {
+				require.NoError(t, err)
+			}
 		})
-		require.Error(t, err)
-		require.Equal(t, err, errMissingAPIKey)
-	})
+	}
+}
 
-	t.Run("WriteConfigurationWithValidData", func(t *testing.T) {
-		t.Parallel()
+func TestConfig_Write(t *testing.T) {
+	t.Parallel()
 
-		ctx := context.Background()
-		b, storage := newTestBackend(t, nil)
-
-		_, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.CreateOperation,
-			Path:      pathPatternConfig,
-			Data: map[string]any{
+	cases := map[string]struct {
+		disabledOps []logical.Operation
+		data        map[string]any
+		expError    string
+		expConfig   *backendConfig
+	}{
+		"write configuration with empty data": {
+			data:     map[string]any{},
+			expError: "missing api key from configuration",
+		},
+		"write configuration with valid data": {
+			data: map[string]any{
 				"api_key": "foo",
 			},
-		})
-		require.NoError(t, err)
-
-		cfg, err := b.getConfig(ctx, storage)
-		require.NoError(t, err)
-		require.NotNil(t, cfg)
-		require.Equal(t, cfg.APIKey, "foo")
-	})
-
-	t.Run("WriteConfigurationWithValidTeamData", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.Background()
-		b, storage := newTestBackend(t, nil)
-
-		_, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.CreateOperation,
-			Path:      pathPatternConfig,
-			Data: map[string]any{
+			expConfig: &backendConfig{
+				APIKey:  "foo",
+				BaseURL: client.DefaultBaseURL,
+				MaxTTL:  defaultMaxTTL,
+			},
+		},
+		"write configuration with valid team data": {
+			data: map[string]any{
 				"api_key":         "foo",
 				"default_team_id": "bar",
 			},
-		})
-		require.NoError(t, err)
-
-		cfg, err := b.getConfig(ctx, storage)
-		require.NoError(t, err)
-		require.NotNil(t, cfg)
-		require.Equal(t, cfg.APIKey, "foo")
-		require.Equal(t, cfg.DefaultTeamID, "bar")
-	})
-
-	t.Run("WriteConfigurationWithStorageFail", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.Background()
-		disabledOps := []logical.Operation{logical.CreateOperation}
-		b, storage := newTestBackend(t, disabledOps)
-
-		_, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.CreateOperation,
-			Path:      pathPatternConfig,
-			Data: map[string]any{
+			expConfig: &backendConfig{
+				APIKey:        "foo",
+				BaseURL:       client.DefaultBaseURL,
+				MaxTTL:        defaultMaxTTL,
+				DefaultTeamID: "bar",
+			},
+		},
+		"write configuration with custom url and ttl": {
+			data: map[string]any{
+				"api_key":         "foo",
+				"base_url":        "http://baseurl",
+				"max_ttl":         10,
+				"default_team_id": "bar",
+			},
+			expConfig: &backendConfig{
+				APIKey:        "foo",
+				BaseURL:       "http://baseurl",
+				MaxTTL:        10,
+				DefaultTeamID: "bar",
+			},
+		},
+		"write configuration with storage fail": {
+			disabledOps: []logical.Operation{
+				logical.CreateOperation,
+			},
+			data: map[string]any{
 				"api_key": "foo",
 			},
+			expError: "failed to write config to storage",
+		},
+	}
+	for name, tc := range cases {
+		tc := tc
+
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			b, storage := newTestBackend(t, tc.disabledOps)
+
+			res, err := b.HandleRequest(ctx, &logical.Request{
+				Storage:   storage,
+				Operation: logical.CreateOperation,
+				Path:      pathPatternConfig,
+				Data:      tc.data,
+			})
+			if tc.expError != "" {
+				require.EqualError(t, err, tc.expError)
+				require.Nil(t, res)
+			} else {
+				require.NoError(t, err)
+				cfg, errg := b.getConfig(ctx, storage)
+				require.NoError(t, errg)
+				require.Equal(t, cfg, tc.expConfig)
+			}
 		})
-		require.Error(t, err)
-	})
+	}
 }
 
-func TestBackend_PathConfigDelete(t *testing.T) {
+func TestConfig_Delete(t *testing.T) {
 	t.Parallel()
 
-	t.Run("DeleteWithoutInit", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.Background()
-		b, storage := newTestBackend(t, nil)
-
-		res, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.DeleteOperation,
-			Path:      pathPatternConfig,
-		})
-		require.Error(t, err)
-		require.Nil(t, res)
-	})
-
-	t.Run("DeleteSuccess", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.Background()
-		b, storage := newTestBackend(t, nil)
-
-		_, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.CreateOperation,
-			Path:      pathPatternConfig,
-			Data: map[string]any{
-				"api_key": "foo",
+	cases := map[string]struct {
+		input       []byte
+		disabledOps []logical.Operation
+		expError    string
+	}{
+		"delete without an init": {
+			expError: "backend not configured",
+		},
+		"delete success": {
+			input: []byte(`{"api_key": "foo"}`),
+		},
+		"delete with storage fail": {
+			disabledOps: []logical.Operation{
+				logical.ReadOperation,
+				logical.DeleteOperation,
 			},
-		})
-		require.NoError(t, err)
-
-		res, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.DeleteOperation,
-			Path:      pathPatternConfig,
-		})
-		require.NoError(t, err)
-		require.NotNil(t, res)
-	})
-
-	t.Run("DeleteWithStorageFail", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.Background()
-		disabledOps := []logical.Operation{logical.ReadOperation, logical.DeleteOperation}
-		b, storage := newTestBackend(t, disabledOps)
-
-		res, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.DeleteOperation,
-			Path:      pathPatternConfig,
-		})
-		require.Equal(t, err, errGetConfig)
-		require.Nil(t, res)
-	})
-	t.Run("DeleteWithStorageFailOnRead", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.Background()
-		disabledOps := []logical.Operation{logical.DeleteOperation}
-		b, storage := newTestBackend(t, disabledOps)
-
-		_, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.CreateOperation,
-			Path:      pathPatternConfig,
-			Data: map[string]any{
-				"api_key": "foo",
+			input:    []byte(`{"api_key": "foo"}`),
+			expError: "failed to get config from storage",
+		},
+		"delete with storage delete fail": {
+			disabledOps: []logical.Operation{
+				logical.DeleteOperation,
 			},
+			input:    []byte(`{"api_key": "foo"}`),
+			expError: "failed to delete config from storage",
+		},
+	}
+	for name, tc := range cases {
+		tc := tc
+
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			b, storage := newTestBackend(t, tc.disabledOps)
+
+			if tc.input != nil {
+				require.NoError(t, storage.Put(ctx, &logical.StorageEntry{
+					Key:   pathPatternConfig,
+					Value: tc.input,
+				}))
+			}
+
+			res, err := b.HandleRequest(ctx, &logical.Request{
+				Storage:   storage,
+				Operation: logical.DeleteOperation,
+				Path:      pathPatternConfig,
+			})
+			if tc.expError != "" {
+				require.EqualError(t, err, tc.expError)
+				require.Nil(t, res)
+			} else {
+				require.NoError(t, err)
+				res, errg := b.getConfig(ctx, storage)
+				require.NoError(t, errg)
+				require.Nil(t, res)
+			}
 		})
-		require.NoError(t, err)
-
-		res, err := b.HandleRequest(ctx, &logical.Request{
-			Storage:   storage,
-			Operation: logical.DeleteOperation,
-			Path:      pathPatternConfig,
-		})
-		require.Error(t, err)
-		require.Nil(t, res)
-	})
-}
-
-func TestBackend_PathConfigGet(t *testing.T) {
-	t.Parallel()
-
-	t.Run("GetConfig", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.Background()
-		b, storage := newTestBackend(t, nil)
-
-		cfg, err := b.getConfig(ctx, storage)
-		require.Nil(t, err)
-		require.Nil(t, cfg)
-	})
-
-	t.Run("GetConfigStorageFail", func(t *testing.T) {
-		t.Parallel()
-
-		ctx := context.Background()
-		disabledOps := []logical.Operation{logical.ReadOperation}
-		b, storage := newTestBackend(t, disabledOps)
-
-		_, err := b.getConfig(ctx, storage)
-		require.Equal(t, err, errGetConfig)
-	})
+	}
 }

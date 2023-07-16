@@ -29,7 +29,7 @@ func TestTokenMock(t *testing.T) {
 		ctx := context.Background()
 		hc := &http.Client{}
 
-		k := NewWithBaseURL("foo", hc, ts.URL)
+		k := NewAPIClientWithBaseURL("foo", hc, ts.URL)
 		r, err := k.CreateAuthToken(ctx, &CreateAuthTokenRequest{Name: "foo"})
 		require.Nil(t, r)
 		require.Error(t, err)
@@ -38,7 +38,7 @@ func TestTokenMock(t *testing.T) {
 	t.Run("create token bogus url", func(t *testing.T) {
 		ctx := context.Background()
 		hc := &http.Client{}
-		k := NewWithBaseURL("foo", hc, "http://localhost:69696")
+		k := NewAPIClientWithBaseURL("foo", hc, "http://localhost:69696")
 		r, err := k.CreateAuthToken(ctx, &CreateAuthTokenRequest{Name: "foo"})
 		require.Nil(t, r)
 		require.Error(t, err)
@@ -48,7 +48,7 @@ func TestTokenMock(t *testing.T) {
 		ctx := context.Background()
 		hc := &http.Client{}
 
-		k := NewWithBaseURL("foo", hc, ts.URL)
+		k := NewAPIClientWithBaseURL("foo", hc, ts.URL)
 		r, err := k.DeleteAuthToken(ctx, &DeleteAuthTokenRequest{ID: "foo"})
 		require.Nil(t, r)
 		require.Error(t, err)
@@ -57,7 +57,7 @@ func TestTokenMock(t *testing.T) {
 	t.Run("delete token bogus url", func(t *testing.T) {
 		ctx := context.Background()
 		hc := &http.Client{}
-		k := NewWithBaseURL("foo", hc, "http://localhost:69696")
+		k := NewAPIClientWithBaseURL("foo", hc, "http://localhost:69696")
 		r, err := k.DeleteAuthToken(ctx, &DeleteAuthTokenRequest{ID: "foo"})
 		require.Nil(t, r)
 		require.Error(t, err)
@@ -67,7 +67,7 @@ func TestTokenMock(t *testing.T) {
 func TestCreateDeleteToken(t *testing.T) {
 	t.Parallel()
 
-	recordHelper(t, "auth_token", func(ctx context.Context, t *testing.T, rec *recorder.Recorder, c *Client) {
+	recordHelper(t, "auth_token", func(ctx context.Context, t *testing.T, rec *recorder.Recorder, c *APIClient) {
 		t.Helper()
 
 		require.NotNil(t, c.httpClient)
@@ -100,7 +100,7 @@ func TestCreateDeleteToken(t *testing.T) {
 
 func TestCreateDeleteTokenTeam(t *testing.T) {
 	t.Parallel()
-	recordHelper(t, "auth_token_team", func(ctx context.Context, t *testing.T, rec *recorder.Recorder, c *Client) {
+	recordHelper(t, "auth_token_team", func(ctx context.Context, t *testing.T, rec *recorder.Recorder, c *APIClient) {
 		t.Helper()
 
 		require.NotNil(t, c.httpClient)

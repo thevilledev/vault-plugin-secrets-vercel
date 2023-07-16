@@ -34,7 +34,8 @@ type DeleteAuthTokenResponse struct {
 	ID string `json:"tokenId"`
 }
 
-func (c *Client) CreateAuthToken(ctx context.Context, req *CreateAuthTokenRequest) (*CreateAuthTokenResponse, error) {
+func (c *APIClient) CreateAuthToken(ctx context.Context,
+	req *CreateAuthTokenRequest) (*CreateAuthTokenResponse, error) {
 	resp := &CreateAuthTokenResponse{}
 
 	if req == nil {
@@ -78,7 +79,8 @@ func (c *Client) CreateAuthToken(ctx context.Context, req *CreateAuthTokenReques
 	return resp, nil
 }
 
-func (c *Client) DeleteAuthToken(ctx context.Context, req *DeleteAuthTokenRequest) (*DeleteAuthTokenResponse, error) {
+func (c *APIClient) DeleteAuthToken(ctx context.Context,
+	req *DeleteAuthTokenRequest) (*DeleteAuthTokenResponse, error) {
 	resp := &DeleteAuthTokenResponse{}
 
 	if req == nil {

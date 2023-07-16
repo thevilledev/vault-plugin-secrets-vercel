@@ -24,7 +24,7 @@ func TestClient(t *testing.T) {
 
 	t.Run("create client", func(t *testing.T) {
 		hc := &http.Client{}
-		k := New("api key", hc)
+		k := NewAPIClient("api key", hc)
 		require.Equal(t, k.baseURL, DefaultBaseURL)
 		require.Equal(t, k.token, "api key")
 	})
@@ -33,7 +33,9 @@ func TestClient(t *testing.T) {
 		ctx := context.Background()
 		hc := &http.Client{}
 
-		k := NewWithBaseURL("foo", hc, "http://doesnotexist")
+		k := NewAPIClientWithBaseURL("foo", hc, "http://doesnotexist")
+		u := k.GetBaseURL()
+		require.Equal(t, u, "http://doesnotexist")
 		_, err := k.do(ctx, http.MethodGet, "/", nil, nil)
 		require.Error(t, err)
 	})
@@ -41,7 +43,7 @@ func TestClient(t *testing.T) {
 	t.Run("client without context", func(t *testing.T) {
 		hc := &http.Client{}
 
-		k := NewWithBaseURL("foo", hc, ts.URL)
+		k := NewAPIClientWithBaseURL("foo", hc, ts.URL)
 		//nolint:staticcheck
 		_, err := k.do(nil, http.MethodGet, "/", nil, nil)
 		require.Error(t, err)
