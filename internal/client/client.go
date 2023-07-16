@@ -3,6 +3,7 @@ package client
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -11,6 +12,10 @@ import (
 const (
 	DefaultBaseURL     = "https://api.vercel.com/v3"
 	defaultHTTPTimeout = 60 * time.Second
+)
+
+var (
+	errEmptyReq = errors.New("empty req")
 )
 
 type Client struct {
