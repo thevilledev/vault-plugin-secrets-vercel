@@ -38,8 +38,11 @@ If set, individual tokens cannot override this value per token.`
 
 var (
 	errBackendNotConfigured = errors.New("backend not configured")
-	errMissingAPIKey        = errors.New("missing API key from configuration")
+	errMissingAPIKey        = errors.New("missing api key from configuration")
 	errGetConfig            = errors.New("failed to get config from storage")
+	errDecode               = errors.New("failed to decode config")
+	errWriteConfig          = errors.New("failed to write config to storage")
+	errDeleteConfig         = errors.New("failed to delete config from storage")
 )
 
 type backendConfig struct {
@@ -106,7 +109,7 @@ func (b *backend) getConfig(ctx context.Context, storage logical.Storage) (*back
 	}
 
 	if err = e.DecodeJSON(&config); err != nil {
-		return nil, err
+		return nil, errDecode
 	}
 
 	return &config, nil
@@ -154,7 +157,9 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 	}
 
 	if err = req.Storage.Put(ctx, e); err != nil {
-		return nil, err
+		b.Logger().Error("failed to write config to storage", err)
+
+		return nil, errWriteConfig
 	}
 
 	b.Logger().Info("config initialised")
@@ -174,7 +179,9 @@ func (b *backend) pathConfigDelete(ctx context.Context, req *logical.Request,
 	}
 
 	if err = req.Storage.Delete(ctx, pathPatternConfig); err != nil {
-		return nil, err
+		b.Logger().Error("failed to delete config from storage", err)
+
+		return nil, errDeleteConfig
 	}
 
 	return &logical.Response{}, nil
