@@ -37,6 +37,10 @@ type DeleteAuthTokenResponse struct {
 func (c *Client) CreateAuthToken(ctx context.Context, req *CreateAuthTokenRequest) (*CreateAuthTokenResponse, error) {
 	resp := &CreateAuthTokenResponse{}
 
+	if req == nil {
+		return nil, errEmptyReq
+	}
+
 	b, err := json.Marshal(req)
 	if err != nil {
 		return nil, err
@@ -76,6 +80,11 @@ func (c *Client) CreateAuthToken(ctx context.Context, req *CreateAuthTokenReques
 
 func (c *Client) DeleteAuthToken(ctx context.Context, req *DeleteAuthTokenRequest) (*DeleteAuthTokenResponse, error) {
 	resp := &DeleteAuthTokenResponse{}
+
+	if req == nil {
+		return nil, errEmptyReq
+	}
+
 	path := fmt.Sprintf("%s/%s", "/user/tokens", req.ID)
 
 	res, err := c.do(ctx, http.MethodDelete, path, nil, nil)
