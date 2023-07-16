@@ -37,8 +37,9 @@ Generate a Vercel API token with the given TTL.`
 )
 
 var (
-	errTokenMaxTTLExceeded         = errors.New("given TTL exceeds the maximum allowed value")
-	errCannotOverrideDefaultTeamID = errors.New("cannot override team_id different than set on backend config")
+	errTokenMaxTTLExceeded         = errors.New("TTL exceeds the maximum value")
+	errCannotOverrideDefaultTeamID = errors.New("cannot override default_team_id")
+	errCreateToken                 = errors.New("failed to create token")
 )
 
 func (b *backend) pathToken() []*framework.Path {
@@ -117,7 +118,9 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 
 	tokenID, bearerToken, err := svc.CreateAuthToken(ctx, name, ttl, teamID)
 	if err != nil {
-		return nil, err
+		b.Logger().Error("failed to create token", err)
+
+		return nil, errCreateToken
 	}
 
 	return &logical.Response{

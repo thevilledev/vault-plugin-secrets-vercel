@@ -18,29 +18,39 @@ var (
 	errEmptyReq = errors.New("empty req")
 )
 
-type Client struct {
+type Client interface {
+	GetBaseURL() string
+	DeleteAuthToken(ctx context.Context, req *DeleteAuthTokenRequest) (*DeleteAuthTokenResponse, error)
+	CreateAuthToken(ctx context.Context, req *CreateAuthTokenRequest) (*CreateAuthTokenResponse, error)
+}
+
+type APIClient struct {
 	baseURL    string
 	httpClient *http.Client
 	token      string
 }
 
-func New(apiKey string, client *http.Client) *Client {
-	return &Client{
+func NewAPIClient(apiKey string, client *http.Client) *APIClient {
+	return &APIClient{
 		baseURL:    DefaultBaseURL,
 		httpClient: client,
 		token:      apiKey,
 	}
 }
 
-func NewWithBaseURL(apiKey string, client *http.Client, baseURL string) *Client {
-	return &Client{
+func NewAPIClientWithBaseURL(apiKey string, client *http.Client, baseURL string) *APIClient {
+	return &APIClient{
 		baseURL:    baseURL,
 		httpClient: client,
 		token:      apiKey,
 	}
 }
 
-func (c *Client) do(ctx context.Context, method, endpoint string, body []byte,
+func (c *APIClient) GetBaseURL() string {
+	return c.baseURL
+}
+
+func (c *APIClient) do(ctx context.Context, method, endpoint string, body []byte,
 	params map[string]string) (*http.Response, error) {
 	u := fmt.Sprintf("%s%s", c.baseURL, endpoint)
 	bearer := fmt.Sprintf("Bearer %s", c.token)

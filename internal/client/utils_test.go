@@ -13,7 +13,7 @@ import (
 	"gopkg.in/dnaeon/go-vcr.v3/recorder"
 )
 
-func recordHelper(t *testing.T, fixture string, f func(context.Context, *testing.T, *recorder.Recorder, *Client)) {
+func recordHelper(t *testing.T, fixture string, f func(context.Context, *testing.T, *recorder.Recorder, *APIClient)) {
 	t.Helper()
 
 	r, err := recorder.New("fixtures/" + fixture)
@@ -59,5 +59,5 @@ func recordHelper(t *testing.T, fixture string, f func(context.Context, *testing
 	ctx, cancel := context.WithTimeout(context.Background(), defaultHTTPTimeout)
 	defer cancel()
 
-	f(ctx, t, r, NewWithBaseURL(apiKey, httpClient, DefaultBaseURL))
+	f(ctx, t, r, NewAPIClientWithBaseURL(apiKey, httpClient, DefaultBaseURL))
 }

@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	errRemoteTokenRevokeFailed = errors.New("failed to revoke token from Vercel")
+	errRemoteTokenRevokeFailed = errors.New("failed to revoke token")
 	errInternalDataMissing     = errors.New("missing internal data from secret")
 )
 

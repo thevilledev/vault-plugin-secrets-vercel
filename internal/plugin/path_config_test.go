@@ -9,7 +9,7 @@ import (
 	"github.com/thevilledev/vault-plugin-secrets-vercel/internal/client"
 )
 
-func TestBackend_Config(t *testing.T) {
+func TestConfig_Get(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]struct {
@@ -140,6 +140,20 @@ func TestConfig_Write(t *testing.T) {
 				APIKey:        "foo",
 				BaseURL:       client.DefaultBaseURL,
 				MaxTTL:        defaultMaxTTL,
+				DefaultTeamID: "bar",
+			},
+		},
+		"write configuration with custom url and ttl": {
+			data: map[string]any{
+				"api_key":         "foo",
+				"base_url":        "http://baseurl",
+				"max_ttl":         10,
+				"default_team_id": "bar",
+			},
+			expConfig: &backendConfig{
+				APIKey:        "foo",
+				BaseURL:       "http://baseurl",
+				MaxTTL:        10,
 				DefaultTeamID: "bar",
 			},
 		},

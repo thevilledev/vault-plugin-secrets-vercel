@@ -2,15 +2,19 @@ package service
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"net/http"
 	"time"
 
 	"github.com/thevilledev/vault-plugin-secrets-vercel/internal/client"
 )
 
+var (
+	errInvalidTTL = errors.New("invalid ttl")
+)
+
 type Service struct {
-	apiClient *client.Client
+	client client.Client
 }
 
 type Token struct {
@@ -21,26 +25,42 @@ type Token struct {
 func New(apiKey string) *Service {
 	c := &http.Client{}
 
+	var ac client.Client
+
+	if apiKey == "mock" {
+		ac = client.NewMockClient()
+	} else {
+		ac = client.NewAPIClient(apiKey, c)
+	}
+
 	return &Service{
-		apiClient: client.New(apiKey, c),
+		client: ac,
 	}
 }
 
 func NewWithBaseURL(apiKey string, baseURL string) *Service {
 	c := &http.Client{}
 
+	var ac client.Client
+
+	if apiKey == "mock" {
+		ac = client.NewMockClient()
+	} else {
+		ac = client.NewAPIClientWithBaseURL(apiKey, c, baseURL)
+	}
+
 	return &Service{
-		apiClient: client.NewWithBaseURL(apiKey, c, baseURL),
+		client: ac,
 	}
 }
 
 func (s *Service) CreateAuthToken(ctx context.Context, name string, ttl int64, teamID string) (string, string, error) {
 	if ttl <= 0 {
-		return "", "", fmt.Errorf("cannot create token with a ttl of 0")
+		return "", "", errInvalidTTL
 	}
 
 	expiresAt := time.Now().Add(time.Duration(ttl) * time.Second).UTC().UnixMilli()
-	r, err := s.apiClient.CreateAuthToken(ctx, &client.CreateAuthTokenRequest{
+	r, err := s.client.CreateAuthToken(ctx, &client.CreateAuthTokenRequest{
 		Name:      name,
 		ExpiresAt: expiresAt,
 		TeamID:    teamID,
@@ -54,7 +74,7 @@ func (s *Service) CreateAuthToken(ctx context.Context, name string, ttl int64, t
 }
 
 func (s *Service) DeleteAuthToken(ctx context.Context, id string) (string, error) {
-	r, err := s.apiClient.DeleteAuthToken(ctx, &client.DeleteAuthTokenRequest{
+	r, err := s.client.DeleteAuthToken(ctx, &client.DeleteAuthTokenRequest{
 		ID: id,
 	})
 
