@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestToken_Create2(t *testing.T) {
+func TestToken_Create(t *testing.T) {
 	t.Parallel()
 
 	cases := map[string]struct {
