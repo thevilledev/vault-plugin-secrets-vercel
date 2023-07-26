@@ -93,6 +93,7 @@ func (b *backend) pathConfig() []*framework.Path {
 					Callback: b.pathConfigDelete,
 				},
 			},
+			ExistenceCheck: b.pathConfigExistence(),
 		},
 	}
 }
@@ -186,4 +187,12 @@ func (b *backend) pathConfigDelete(ctx context.Context, req *logical.Request,
 	}
 
 	return &logical.Response{}, nil
+}
+
+func (b *backend) pathConfigExistence() framework.ExistenceFunc {
+	return func(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
+		_, err := b.getConfig(ctx, req.Storage)
+
+		return err != nil, err
+	}
 }

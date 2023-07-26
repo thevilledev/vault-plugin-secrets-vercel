@@ -62,9 +62,6 @@ func (b *backend) pathToken() []*framework.Path {
 				logical.ReadOperation: &framework.PathOperation{
 					Callback: b.pathTokenWrite,
 				},
-				logical.CreateOperation: &framework.PathOperation{
-					Callback: b.pathTokenWrite,
-				},
 				logical.UpdateOperation: &framework.PathOperation{
 					Callback: b.pathTokenWrite,
 				},
