@@ -47,7 +47,7 @@ func (c *APIClient) CreateAuthToken(ctx context.Context,
 		return nil, err
 	}
 
-	p := make(map[string]string, 0)
+	p := make(map[string]string, 1)
 	if req.TeamID != "" {
 		p["teamId"] = req.TeamID
 	}
