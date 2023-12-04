@@ -3,7 +3,7 @@ module github.com/thevilledev/vault-plugin-secrets-vercel
 go 1.20
 
 require (
-	github.com/hashicorp/go-hclog v1.5.0
+	github.com/hashicorp/go-hclog v1.6.1
 	github.com/hashicorp/vault/api v1.10.0
 	github.com/hashicorp/vault/sdk v0.10.2
 	gopkg.in/dnaeon/go-vcr.v3 v3.1.2
