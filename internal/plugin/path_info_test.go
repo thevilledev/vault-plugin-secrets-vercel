@@ -36,7 +36,9 @@ func TestPathInfo(t *testing.T) {
 		require.NoError(t, err)
 
 		var vi version.Info
+
 		d, err := json.Marshal(res.Data)
+
 		require.NoError(t, err)
 		err = json.Unmarshal(d, &vi)
 		require.NoError(t, err)
