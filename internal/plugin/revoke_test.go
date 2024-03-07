@@ -91,6 +91,7 @@ func TestToken_Revoke(t *testing.T) {
 					Data:      tc.tokenData,
 				})
 				require.NoError(t, err)
+
 				tokenID, _ = r.Data["token_id"].(string)
 			}
 

@@ -134,6 +134,7 @@ func TestToken_Create(t *testing.T) {
 				require.Nil(t, r)
 			} else {
 				require.Equal(t, r.Secret.LeaseOptions.TTL, defaultMaxTTL*time.Second)
+
 				for k, v := range tc.expDataFields {
 					require.Equal(t, r.Data[k], v)
 				}
