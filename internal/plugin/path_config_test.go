@@ -187,7 +187,9 @@ func TestConfig_Write(t *testing.T) {
 				require.Nil(t, res)
 			} else {
 				require.NoError(t, err)
+
 				cfg, errg := b.getConfig(ctx, storage)
+
 				require.NoError(t, errg)
 				require.Equal(t, cfg, tc.expConfig)
 			}
@@ -251,7 +253,9 @@ func TestConfig_Delete(t *testing.T) {
 				require.Nil(t, res)
 			} else {
 				require.NoError(t, err)
+
 				res, errg := b.getConfig(ctx, storage)
+
 				require.NoError(t, errg)
 				require.Nil(t, res)
 			}

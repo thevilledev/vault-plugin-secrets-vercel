@@ -30,7 +30,9 @@ func TestFactory(t *testing.T) {
 
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
+
 			ctx := context.Background()
+
 			b, err := Factory(ctx, tc.cfg)
 			if tc.expError != "" {
 				require.EqualError(t, err, tc.expError)
