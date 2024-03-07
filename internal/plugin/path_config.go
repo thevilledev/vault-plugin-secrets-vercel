@@ -190,7 +190,7 @@ func (b *backend) pathConfigDelete(ctx context.Context, req *logical.Request,
 }
 
 func (b *backend) pathConfigExistence() framework.ExistenceFunc {
-	return func(ctx context.Context, req *logical.Request, data *framework.FieldData) (bool, error) {
+	return func(ctx context.Context, req *logical.Request, _ *framework.FieldData) (bool, error) {
 		_, err := b.getConfig(ctx, req.Storage)
 
 		return err != nil, err

@@ -8,11 +8,12 @@ import (
 	"github.com/hashicorp/vault/sdk/logical"
 )
 
-// #nosec G101
 const (
+	// #nosec G101
 	backendSecretType = "vercel_token"
 	backendPathHelp   = `
 Vercel Secrets backend is a secrets backend for dynamically managing Vercel tokens.`
+	// #nosec G101
 	secretTokenIDDescription = `
 Token ID of the generated API key is stored in the plugin backend.
 This ID is used for revocation purposes. It can only be used to identify a key,
