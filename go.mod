@@ -6,7 +6,7 @@ require (
 	github.com/hashicorp/go-hclog v1.6.3
 	github.com/hashicorp/vault/api v1.14.0
 	github.com/hashicorp/vault/sdk v0.13.0
-	gopkg.in/dnaeon/go-vcr.v3 v3.2.0
+	gopkg.in/dnaeon/go-vcr.v3 v3.2.1
 )
 
 require (
