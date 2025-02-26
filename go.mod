@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/hashicorp/go-hclog v1.6.3
-	github.com/hashicorp/vault/api v1.15.0
+	github.com/hashicorp/vault/api v1.16.0
 	github.com/hashicorp/vault/sdk v0.14.0
 	gopkg.in/dnaeon/go-vcr.v3 v3.2.0
 )
@@ -86,7 +86,7 @@ require (
 	github.com/stretchr/testify v1.10.0
 	go.uber.org/atomic v1.9.0 // indirect
 	golang.org/x/crypto v0.32.0 // indirect
-	golang.org/x/net v0.33.0 // indirect
+	golang.org/x/net v0.34.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/text v0.21.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
