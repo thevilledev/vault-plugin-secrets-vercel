@@ -4,7 +4,7 @@
 
 ## Run it locally
 
-The project is built and tested with Go 1.25.7. The CI lint job uses golangci-lint v2.11, and release configuration is validated with GoReleaser v2.
+The project is built and tested with Go 1.25.10. The CI lint job uses golangci-lint v2.11, and release configuration is validated with GoReleaser v2.
 
 Run a local development setup with the following commands:
 
