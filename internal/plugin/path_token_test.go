@@ -17,6 +17,7 @@ func TestToken_Create(t *testing.T) {
 		cfgData       map[string]any
 		tokenData     map[string]any
 		expError      string
+		expRespErr    bool
 		expDataFields map[string]any
 	}{
 		"token without backend": {
@@ -64,6 +65,26 @@ func TestToken_Create(t *testing.T) {
 				"ttl":  11,
 			},
 			expError: "TTL exceeds the maximum value",
+		},
+		"token with zero ttl": {
+			cfgData: map[string]any{
+				"api_key": "mock",
+			},
+			tokenData: map[string]any{
+				"name": "foo",
+				"ttl":  0,
+			},
+			expError: "invalid ttl",
+		},
+		"token with negative ttl": {
+			cfgData: map[string]any{
+				"api_key": "mock",
+			},
+			tokenData: map[string]any{
+				"name": "foo",
+				"ttl":  -1,
+			},
+			expRespErr: true,
 		},
 		"token with default team id": {
 			cfgData: map[string]any{
@@ -129,11 +150,15 @@ func TestToken_Create(t *testing.T) {
 				Data:      tc.tokenData,
 			})
 
-			if tc.expError != "" {
+			if tc.expRespErr {
+				require.NoError(t, err)
+				require.NotNil(t, r)
+				require.True(t, r.IsError())
+			} else if tc.expError != "" {
 				require.EqualError(t, err, tc.expError)
 				require.Nil(t, r)
 			} else {
-				require.Equal(t, r.Secret.LeaseOptions.TTL, defaultMaxTTL*time.Second)
+				require.Equal(t, r.Secret.LeaseOptions.TTL, time.Duration(defaultMaxTTL)*time.Second)
 
 				for k, v := range tc.expDataFields {
 					require.Equal(t, r.Data[k], v)

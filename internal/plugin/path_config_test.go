@@ -115,6 +115,7 @@ func TestConfig_Write(t *testing.T) {
 		disabledOps []logical.Operation
 		data        map[string]any
 		expError    string
+		expRespErr  bool
 		expConfig   *backendConfig
 	}{
 		"write configuration with empty data": {
@@ -157,6 +158,20 @@ func TestConfig_Write(t *testing.T) {
 				DefaultTeamID: "bar",
 			},
 		},
+		"write configuration with zero max ttl": {
+			data: map[string]any{
+				"api_key": "foo",
+				"max_ttl": 0,
+			},
+			expError: "invalid max_ttl",
+		},
+		"write configuration with negative max ttl": {
+			data: map[string]any{
+				"api_key": "foo",
+				"max_ttl": -1,
+			},
+			expRespErr: true,
+		},
 		"write configuration with storage fail": {
 			disabledOps: []logical.Operation{
 				logical.CreateOperation,
@@ -182,7 +197,11 @@ func TestConfig_Write(t *testing.T) {
 				Path:      pathPatternConfig,
 				Data:      tc.data,
 			})
-			if tc.expError != "" {
+			if tc.expRespErr {
+				require.NoError(t, err)
+				require.NotNil(t, res)
+				require.True(t, res.IsError())
+			} else if tc.expError != "" {
 				require.EqualError(t, err, tc.expError)
 				require.Nil(t, res)
 			} else {
@@ -192,6 +211,58 @@ func TestConfig_Write(t *testing.T) {
 
 				require.NoError(t, errg)
 				require.Equal(t, cfg, tc.expConfig)
+			}
+		})
+	}
+}
+
+func TestConfig_Existence(t *testing.T) {
+	t.Parallel()
+
+	cases := map[string]struct {
+		disabledOps []logical.Operation
+		input       []byte
+		expExists   bool
+		expError    string
+	}{
+		"missing config": {},
+		"existing config": {
+			input:     []byte(`{"api_key": "foo"}`),
+			expExists: true,
+		},
+		"storage fail": {
+			disabledOps: []logical.Operation{
+				logical.ReadOperation,
+			},
+			expError: "failed to get config from storage",
+		},
+	}
+	for name, tc := range cases {
+		tc := tc
+
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			b, storage := newTestBackend(t, tc.disabledOps)
+
+			if tc.input != nil {
+				require.NoError(t, storage.Put(ctx, &logical.StorageEntry{
+					Key:   pathPatternConfig,
+					Value: tc.input,
+				}))
+			}
+
+			exists, err := b.pathConfigExistence()(ctx, &logical.Request{
+				Storage: storage,
+			}, nil)
+
+			if tc.expError != "" {
+				require.EqualError(t, err, tc.expError)
+				require.False(t, exists)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.expExists, exists)
 			}
 		})
 	}

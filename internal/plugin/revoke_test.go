@@ -37,6 +37,17 @@ func TestToken_Revoke(t *testing.T) {
 		},
 		"token revocation backend fail": {
 			cfgData: map[string]any{
+				"api_key":  "real",
+				"base_url": "http://localhost:69696",
+			},
+			internalData: map[string]any{
+				"secret_type": backendSecretType,
+				"token_id":    "foo",
+			},
+			expError: "failed to revoke token",
+		},
+		"token revocation empty token id": {
+			cfgData: map[string]any{
 				"api_key": "mock",
 			},
 			tokenData: map[string]any{
@@ -46,7 +57,7 @@ func TestToken_Revoke(t *testing.T) {
 				"secret_type": backendSecretType,
 				"token_id":    "", // force backend mock fail
 			},
-			expError: "failed to revoke token",
+			expError: "missing internal data from secret",
 		},
 		"token revocation internal data fail": {
 			cfgData: map[string]any{
@@ -57,6 +68,19 @@ func TestToken_Revoke(t *testing.T) {
 			},
 			internalData: map[string]any{
 				"secret_type": backendSecretType,
+			},
+			expError: "missing internal data from secret",
+		},
+		"token revocation non-string token id": {
+			cfgData: map[string]any{
+				"api_key": "mock",
+			},
+			tokenData: map[string]any{
+				"name": "foo",
+			},
+			internalData: map[string]any{
+				"secret_type": backendSecretType,
+				"token_id":    123,
 			},
 			expError: "missing internal data from secret",
 		},

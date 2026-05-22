@@ -40,6 +40,7 @@ var (
 	errTokenMaxTTLExceeded         = errors.New("TTL exceeds the maximum value")
 	errCannotOverrideDefaultTeamID = errors.New("cannot override default_team_id")
 	errCreateToken                 = errors.New("failed to create token")
+	errInvalidTokenTTL             = errors.New("invalid ttl")
 )
 
 func (b *backend) pathToken() []*framework.Path {
@@ -83,16 +84,24 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 
 	ttl := int64(0)
 
-	if vr, ok := data.GetOk(pathTokenTTL); ok {
-		v, _ := vr.(int)
-		ttl = int64(v)
+	ttlSeconds, ttlSet, ttlErr := durationSeconds(data, pathTokenTTL)
+	if ttlErr != nil {
+		return nil, errInvalidTokenTTL
+	}
+
+	if ttlSet {
+		if ttlSeconds <= 0 {
+			return nil, errInvalidTokenTTL
+		}
+
+		ttl = int64(ttlSeconds)
 	}
 
 	if ttl == 0 {
-		ttl = int64(cfg.MaxTTL)
+		ttl = cfg.MaxTTL
 	}
 
-	if ttl > int64(cfg.MaxTTL) {
+	if ttl > cfg.MaxTTL {
 		return nil, errTokenMaxTTLExceeded
 	}
 
@@ -111,11 +120,11 @@ func (b *backend) pathTokenWrite(ctx context.Context, req *logical.Request,
 	ts := time.Now().UnixNano()
 	name := fmt.Sprintf("%s-%d", keyPrefix, ts)
 
-	b.Logger().Info(fmt.Sprintf("creating token with %s and with TTL of %d", name, ttl))
+	b.Logger().Info("creating token", "name", name, "ttl", ttl)
 
 	tokenID, bearerToken, err := svc.CreateAuthToken(ctx, name, ttl, teamID)
 	if err != nil {
-		b.Logger().Error("failed to create token", err)
+		b.Logger().Error("failed to create token", "error", err)
 
 		return nil, errCreateToken
 	}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 )
 
 type CreateAuthTokenRequest struct {
@@ -64,16 +65,16 @@ func (c *APIClient) CreateAuthToken(ctx context.Context,
 		return nil, err
 	}
 
-	validStatusAbove := 200
-	invalidStatusBelow := 300
-
-	ok := res.StatusCode >= validStatusAbove && res.StatusCode < invalidStatusBelow
-	if !ok {
-		return nil, fmt.Errorf("http error %d with response body '%+v'", res.StatusCode, string(body))
+	if !successStatus(res.StatusCode) {
+		return nil, newHTTPError(res.StatusCode, body)
 	}
 
 	if err = json.Unmarshal(body, &resp); err != nil {
-		return resp, err
+		return nil, err
+	}
+
+	if resp.Token.ID == "" || resp.BearerToken == "" {
+		return nil, errInvalidCreateAuthTokenResponse
 	}
 
 	return resp, nil
@@ -87,7 +88,11 @@ func (c *APIClient) DeleteAuthToken(ctx context.Context,
 		return nil, errEmptyReq
 	}
 
-	path := fmt.Sprintf("%s/%s", "/user/tokens", req.ID)
+	if req.ID == "" {
+		return nil, errMissingTokenID
+	}
+
+	path := fmt.Sprintf("%s/%s", "/user/tokens", url.PathEscape(req.ID))
 
 	res, err := c.do(ctx, http.MethodDelete, path, nil, nil)
 	if err != nil {
@@ -101,17 +106,21 @@ func (c *APIClient) DeleteAuthToken(ctx context.Context,
 		return nil, err
 	}
 
-	validStatusAbove := 200
-	invalidStatusBelow := 300
-
-	ok := res.StatusCode >= validStatusAbove && res.StatusCode < invalidStatusBelow
-	if !ok {
-		return nil, fmt.Errorf("http error %d with response body '%+v'", res.StatusCode, string(body))
+	if !successStatus(res.StatusCode) {
+		return nil, newHTTPError(res.StatusCode, body)
 	}
 
 	if err = json.Unmarshal(body, &resp); err != nil {
 		return nil, err
 	}
 
+	if resp.ID == "" {
+		return nil, errInvalidDeleteAuthTokenResponse
+	}
+
 	return resp, nil
+}
+
+func successStatus(statusCode int) bool {
+	return statusCode >= http.StatusOK && statusCode < http.StatusMultipleChoices
 }

@@ -60,12 +60,12 @@ func (s *Service) CreateAuthToken(ctx context.Context, name string, ttl int64, t
 	}
 
 	expiresAt := time.Now().Add(time.Duration(ttl) * time.Second).UTC().UnixMilli()
+
 	r, err := s.client.CreateAuthToken(ctx, &client.CreateAuthTokenRequest{
 		Name:      name,
 		ExpiresAt: expiresAt,
 		TeamID:    teamID,
 	})
-
 	if err != nil {
 		return "", "", err
 	}
@@ -77,7 +77,6 @@ func (s *Service) DeleteAuthToken(ctx context.Context, id string) (string, error
 	r, err := s.client.DeleteAuthToken(ctx, &client.DeleteAuthTokenRequest{
 		ID: id,
 	})
-
 	if err != nil {
 		return "", err
 	}

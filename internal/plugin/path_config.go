@@ -3,7 +3,6 @@ package plugin
 import (
 	"context"
 	"errors"
-	"time"
 
 	"github.com/hashicorp/vault/sdk/framework"
 	"github.com/hashicorp/vault/sdk/logical"
@@ -16,7 +15,7 @@ const (
 	pathConfigBaseURL       = "base_url"
 	pathConfigMaxTTL        = "max_ttl"
 	pathConfigDefaultTeamID = "default_team_id"
-	defaultMaxTTL           = 600
+	defaultMaxTTL           = int64(600)
 
 	pathConfigHelpDescription = `
 Configuration path used to set the API key that the plugin uses to communicate with the Vercel API.
@@ -44,13 +43,14 @@ var (
 	errDecode               = errors.New("failed to decode config")
 	errWriteConfig          = errors.New("failed to write config to storage")
 	errDeleteConfig         = errors.New("failed to delete config from storage")
+	errInvalidMaxTTL        = errors.New("invalid max_ttl")
 )
 
 type backendConfig struct {
-	APIKey        string        `json:"api_key"`
-	BaseURL       string        `json:"base_url"`
-	MaxTTL        time.Duration `json:"max_ttl"`
-	DefaultTeamID string        `json:"default_team_id"`
+	APIKey        string `json:"api_key"`
+	BaseURL       string `json:"base_url"`
+	MaxTTL        int64  `json:"max_ttl"`
+	DefaultTeamID string `json:"default_team_id"`
 }
 
 func (b *backend) pathConfig() []*framework.Path {
@@ -133,12 +133,14 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 		config.BaseURL, _ = v.(string)
 	}
 
-	if vr, ok := data.GetOk(pathConfigMaxTTL); ok {
-		v, _ := vr.(int)
+	if v, ok, err := durationSeconds(data, pathConfigMaxTTL); err != nil {
+		return nil, errInvalidMaxTTL
+	} else if ok {
+		if v <= 0 {
+			return nil, errInvalidMaxTTL
+		}
 
-		ttl := time.Duration(v) * time.Second
-
-		config.MaxTTL = time.Duration(ttl.Seconds())
+		config.MaxTTL = int64(v)
 	}
 
 	if config.APIKey == "" {
@@ -159,7 +161,7 @@ func (b *backend) pathConfigWrite(ctx context.Context, req *logical.Request,
 	}
 
 	if err = req.Storage.Put(ctx, e); err != nil {
-		b.Logger().Error("failed to write config to storage", err)
+		b.Logger().Error("failed to write config to storage", "error", err)
 
 		return nil, errWriteConfig
 	}
@@ -181,7 +183,7 @@ func (b *backend) pathConfigDelete(ctx context.Context, req *logical.Request,
 	}
 
 	if err = req.Storage.Delete(ctx, pathPatternConfig); err != nil {
-		b.Logger().Error("failed to delete config from storage", err)
+		b.Logger().Error("failed to delete config from storage", "error", err)
 
 		return nil, errDeleteConfig
 	}
@@ -191,8 +193,30 @@ func (b *backend) pathConfigDelete(ctx context.Context, req *logical.Request,
 
 func (b *backend) pathConfigExistence() framework.ExistenceFunc {
 	return func(ctx context.Context, req *logical.Request, _ *framework.FieldData) (bool, error) {
-		_, err := b.getConfig(ctx, req.Storage)
+		cfg, err := b.getConfig(ctx, req.Storage)
+		if err != nil {
+			return false, err
+		}
 
-		return err != nil, err
+		return cfg != nil, nil
 	}
+}
+
+func durationSeconds(data *framework.FieldData, key string) (int, bool, error) {
+	if _, ok := data.Raw[key]; !ok {
+		return 0, false, nil
+	}
+
+	v, ok, err := data.GetOkErr(key)
+	if err != nil {
+		return 0, true, err
+	}
+
+	if !ok {
+		return 0, true, nil
+	}
+
+	seconds, _ := v.(int)
+
+	return seconds, true, nil
 }

@@ -3,6 +3,7 @@
 [![Go Reference](https://pkg.go.dev/badge/github.com/thevilledev/vault-plugin-secrets-vercel.svg)](https://pkg.go.dev/github.com/thevilledev/vault-plugin-secrets-vercel)
 [![Go Report Card](https://goreportcard.com/badge/github.com/thevilledev/vault-plugin-secrets-vercel)](https://goreportcard.com/report/github.com/thevilledev/vault-plugin-secrets-vercel)
 [![build](https://github.com/thevilledev/vault-plugin-secrets-vercel/actions/workflows/build.yml/badge.svg)](https://github.com/thevilledev/vault-plugin-secrets-vercel/actions/workflows/build.yml)
+[![CodeQL](https://github.com/thevilledev/vault-plugin-secrets-vercel/actions/workflows/codeql.yml/badge.svg)](https://github.com/thevilledev/vault-plugin-secrets-vercel/actions/workflows/codeql.yml)
 [![codecov](https://codecov.io/gh/thevilledev/vault-plugin-secrets-vercel/branch/main/graph/badge.svg?token=BD9RMDI33W)](https://codecov.io/gh/thevilledev/vault-plugin-secrets-vercel)
 
 ## What?
@@ -73,7 +74,7 @@ jobs:
 Currently this project is scoped for "Hobby" and "Pro" Vercel accounts. This means you can create tokens that:
 
 - Hobby: have *full admin level access* to your Vercel account.
-- Pro: have project-level access only. Applicable when token creation request is provided with the Token ID parameter.
+- Pro: have project-level access only. Applicable when the token creation request is provided with a Vercel Team ID.
 
 Enterprise plan features, such as these, are currently scoped out:
 

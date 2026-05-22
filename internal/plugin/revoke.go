@@ -26,16 +26,23 @@ func (b *backend) Revoke(ctx context.Context, req *logical.Request, _ *framework
 
 	svc := service.NewWithBaseURL(cfg.APIKey, cfg.BaseURL)
 
+	if req.Secret == nil {
+		return nil, errInternalDataMissing
+	}
+
 	k, ok := req.Secret.InternalData[pathTokenID]
 	if !ok {
 		return nil, errInternalDataMissing
 	}
 
-	ks, _ := k.(string)
+	ks, ok := k.(string)
+	if !ok || ks == "" {
+		return nil, errInternalDataMissing
+	}
 
 	_, err = svc.DeleteAuthToken(ctx, ks)
 	if err != nil {
-		b.Logger().Error("failed to revoke/delete the token from Vercel %s", err)
+		b.Logger().Error("failed to revoke/delete token from Vercel", "error", err)
 
 		return nil, errRemoteTokenRevokeFailed
 	}

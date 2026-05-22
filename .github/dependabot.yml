@@ -8,4 +8,28 @@ updates:
   - package-ecosystem: "gomod" # See documentation for possible values
     directory: "/" # Location of package manifests
     schedule:
-      interval: "daily"
+      interval: "weekly"
+      day: "monday"
+      time: "05:00"
+      timezone: "Europe/Helsinki"
+    open-pull-requests-limit: 5
+    groups:
+      go-indirect:
+        patterns:
+          - "go.opentelemetry.io/*"
+          - "golang.org/x/*"
+          - "google.golang.org/*"
+          - "github.com/google/*"
+          - "github.com/googleapis/*"
+        update-types:
+          - "minor"
+          - "patch"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:15"
+      timezone: "Europe/Helsinki"
+    open-pull-requests-limit: 5

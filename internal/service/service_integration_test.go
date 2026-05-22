@@ -17,6 +17,10 @@ func TestIntegration_Token(t *testing.T) {
 	}
 
 	token := os.Getenv("VERCEL_TOKEN")
+	if token == "" {
+		t.Skip("test skipped as VERCEL_TOKEN environment variable is not set")
+	}
+
 	a := New(token)
 	ctx := context.Background()
 
@@ -40,7 +44,15 @@ func TestIntegration_Token_Team(t *testing.T) {
 	}
 
 	token := os.Getenv("VERCEL_TOKEN")
+	if token == "" {
+		t.Skip("test skipped as VERCEL_TOKEN environment variable is not set")
+	}
+
 	teamID := os.Getenv("VERCEL_TEAM_ID")
+	if teamID == "" {
+		t.Skip("test skipped as VERCEL_TEAM_ID environment variable is not set")
+	}
+
 	a := New(token)
 	ctx := context.Background()
 
